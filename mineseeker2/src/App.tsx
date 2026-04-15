@@ -1,6 +1,6 @@
 import type { IRefPhaserGame } from './PhaserGame';
 import { PhaserGame } from './PhaserGame';
-import Phaser from 'phaser';
+//import Phaser from 'phaser';
 
 const App = () => {
     
