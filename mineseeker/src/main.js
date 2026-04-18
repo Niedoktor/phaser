@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 //import { Explosion } from './explosion';
-import { MinePlugin } from './mine';
+//import { MinePlugin } from './mine';
 //import { Grid } from './grid';
 import { Game } from './game';
 
@@ -25,11 +25,11 @@ const config = {
             debug: false
         }
     },
-    plugins: {
-        global: [
-            { key: 'MinePlugin', plugin: MinePlugin, start: true }
-        ]
-    },        
+    // plugins: {
+    //     global: [
+    //         { key: 'MinePlugin', plugin: MinePlugin, start: true }
+    //     ]
+    // },        
     scene: [
         Game
     ]

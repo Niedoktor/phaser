@@ -1,7 +1,11 @@
+import Phaser from 'phaser';
 import { Cell } from './cell';
 
 export class Board
 {
+    #timeCounter;
+    #scansCounter;
+
     constructor (scene, sceneX, sceneY, cellSize, width, height, bombs)
     {
         this.scene = scene;
@@ -25,20 +29,46 @@ export class Board
 
         this.container = this.scene.add.container(this.sceneX, this.sceneY);
 
-        // const x = Math.floor((scene.scale.width / 2) - (20 + (width * 16)) / 2);
-        // const y = Math.floor((scene.scale.height / 2) - (63 + (height * 16)) / 2);
-
-        // this.board = scene.add.container(x, y);
-
         // this.button;
 
         this.createCells();
-        //this.updateDigits();
+        this.createCounters();
 
         // this.button.setInteractive();
 
         // this.button.on('pointerdown', this.onButtonDown, this);
         // this.button.on('pointerup', this.onButtonUp, this);
+    }
+
+    set timeCounter(val){
+        this.#timeCounter = val;
+        this.timeCounterDisplay.setText(`TIME: ${this.#timeCounter}`);
+    }
+    get timeCounter(){
+        return this.#timeCounter;
+    }
+
+    set scansCounter(val){
+        this.#scansCounter = val;
+        this.scansCounterDisplay.setText(`SCANS: ${this.#scansCounter}`);
+    }
+    get scansCounter(){
+        return this.#scansCounter;
+    }
+
+    createCounters (){
+        this.timeCounterDisplay = this.scene.add.text(this.sceneX, 14, ``, {
+            fontSize: 64,
+            color: '#000000',
+            fontFamily: 'Kode Mono'
+        });
+        this.scansCounterDisplay = this.scene.add.text(this.sceneX + this.width * this.cellSize, 14, ``, {
+            fontSize: 64,
+            color: '#000000',
+            fontFamily: 'Kode Mono'
+        }).setOrigin(1, 0);
+        this.timeCounter = 10;
+        this.scansCounter = 5;
     }
 
     createCells ()
@@ -71,7 +101,7 @@ export class Board
 
             if (!cell.bomb && cell.index !== startIndex)
             {
-                cell.bomb = true;
+                cell.bomb = Phaser.Math.Between(1, 3);
 
                 qty--;
 
@@ -83,12 +113,11 @@ export class Board
         bombs.forEach(cell => {
 
             //  Update the 8 cells around this bomb cell
-
             const adjacent = this.getAdjacentCells(cell);
 
             adjacent.forEach(adjacentCell => {
 
-                if (adjacentCell)
+                if (adjacentCell && !adjacentCell.bomb)
                 {
                     adjacentCell.value++;
                 }
@@ -98,6 +127,14 @@ export class Board
         this.playing = true;
         this.populated = true;
         this.state = 1;
+
+        for (let x = 0; x < this.width; x++)
+        {
+            for (let y = 0; y < this.height; y++)
+            {
+                this.data[x][y].scan();
+            }
+        }        
     }
 
     getCell (index)

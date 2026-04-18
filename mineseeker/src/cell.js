@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { Mine } from './mine';
 
 export class Cell
 {
@@ -16,8 +17,8 @@ export class Cell
         this.open = false;
         this.bomb = false;
 
-        this.flagged = false;
-        this.query = false;
+        // this.flagged = false;
+        // this.query = false;
         this.exploded = false;
 
         //  0 = empty, 1,2,3,4,5,6,7,8 = number of adjacent bombs
@@ -38,36 +39,37 @@ export class Cell
             this.board.generate(this.index);
         }
 
-        if (this.open || !this.board.playing)
+        if ((this.open && !this.bomb) || !this.board.playing || this.exploded)
         {
             return;
         }
 
         if (pointer.rightButtonDown())
         {
-            if (this.query)
+            if (!this.open && this.board.scansCounter > 0)
             {
-                this.query = false;
-                //this.tile.setFrame(0);
-            }
-            else if (this.flagged)
-            {
-                this.query = true;
-                this.flagged = false;
-                //this.board.updateBombs(-1);
-                //this.tile.setFrame(3);
-            }
-            else if (!this.flagged)
-            {
-                this.flagged = true;
-                //this.tile.setFrame(2);
-                //this.board.updateBombs(1);
-                //this.board.checkWinState();
+                this.scan();
+                this.board.scansCounter--;
             }
         }
-        else if (!this.flagged && !this.query)
+        else if (this.board.timeCounter > 0)
         {
             this.onClick();
+        }
+    }
+
+    scan ()
+    {
+        this.show();
+
+        if(this.bomb){
+            const x = this.board.sceneX + this.x * this.cellSize + (this.cellSize / 2);
+            const y = this.board.sceneY + this.y * this.cellSize + (this.cellSize / 2);
+            const r = this.cellSize * (0.1 + this.bomb * 0.1);
+            const f = this.cellSize / 20;
+            const er = this.cellSize * this.bomb;
+
+            this.mine = new Mine(this.scene, x, y, r, f, this.bomb, er);
         }
     }
 
@@ -76,8 +78,10 @@ export class Cell
         if (this.bomb)
         {
             this.exploded = true;
-
-            //this.grid.gameOver();
+            if(!this.open){
+                this.scan();
+            }
+            this.mine.blowUp();
         }
         else
         {
@@ -89,10 +93,8 @@ export class Cell
             {
                 this.show();
             }
-
-            //this.board.button.setFrame(2);
-            //this.board.checkWinState();
         }
+        this.board.timeCounter--;        
     }
 
     show ()
