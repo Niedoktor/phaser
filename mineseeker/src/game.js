@@ -17,9 +17,9 @@ export class Game extends Phaser.Scene {
 
         const width = 10;
         const height = 10;
-        const cellSize = (this.scale.height - 150) / height;
+        const y = 140;        
+        const cellSize = (this.scale.height - y - 50) / height;
         const x = Math.floor((this.scale.width / 2) - (width * cellSize) / 2);
-        const y = 100;
 
         //  0 = waiting to create the grid
         //  1 = playing

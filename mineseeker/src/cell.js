@@ -48,7 +48,7 @@ export class Cell
         {
             if (!this.open && this.board.scansCounter > 0)
             {
-                this.scan();
+                this.scan(this.board.scannerRange);
                 this.board.scansCounter--;
             }
         }
@@ -58,22 +58,30 @@ export class Cell
         }
     }
 
-    scan ()
+    scan (range = 0)
     {
-        this.show();
+        for(let x = this.x - range; x <= this.x + range; x++){
+            for(let y = this.y - range; y <= this.y + range; y++){
+                const cell = this.board.getCellXY(x, y);
+                if(cell){
+                    if(!cell.open){
+                        cell.show();
+                    }
+                    if(cell.bomb){
+                        const x = this.board.sceneX + cell.x * cell.cellSize + (cell.cellSize / 2);
+                        const y = this.board.sceneY + cell.y * cell.cellSize + (cell.cellSize / 2);
+                        const r = cell.cellSize * (0.1 + cell.bomb * 0.1);
+                        const f = cell.cellSize / 20;
+                        const er = cell.cellSize * cell.bomb;
 
-        if(this.bomb){
-            const x = this.board.sceneX + this.x * this.cellSize + (this.cellSize / 2);
-            const y = this.board.sceneY + this.y * this.cellSize + (this.cellSize / 2);
-            const r = this.cellSize * (0.1 + this.bomb * 0.1);
-            const f = this.cellSize / 20;
-            const er = this.cellSize * this.bomb;
+                        cell.mine = new Mine(this.scene, x, y, r, f, cell.bomb, er);
 
-            this.mine = new Mine(this.scene, x, y, r, f, this.bomb, er);
-
-            this.mine.mine.setOnCollide(() => {
-                if(this.mine.mine) this.mineBlowUp(this.mine);
-            })
+                        cell.mine.mine.setOnCollide(() => {
+                            if(cell.mine.mine) cell.mineBlowUp(cell.mine);
+                        })
+                    }
+                }
+            }
         }
     }
 
@@ -82,6 +90,15 @@ export class Cell
         this.board.pointsCounter += mine.power * this.board.sequence;
         this.board.sequence++;
         mine.blowUp();
+
+        if(this.mineLegend) {
+            this.mineLegendX = this.scene.add.text(this.mineLegend.x, this.mineLegend.y, 'X', {
+                fontSize: 20 * mine.power,
+                color: '#ff0000',
+                fontFamily: 'Sixtyfour'
+            }).setOrigin(0.5, 0.45);
+            this.mineLegend.setAlpha(0.5);
+        }
     }
 
     onClick ()

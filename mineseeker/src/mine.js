@@ -33,7 +33,7 @@ export class Mine
             fontSize: 48,
             color: '#ffffff',
             fontFamily: 'Sixtyfour'
-        }).setOrigin(0.5);
+        }).setOrigin(0.5, 0.45);
     }
 
     blowUp () {

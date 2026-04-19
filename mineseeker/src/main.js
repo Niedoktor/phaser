@@ -7,7 +7,7 @@ import { Game } from './game';
 const config = {
     title: 'Mineseeker',
     type: Phaser.AUTO,
-    width: 1440,
+    width: 2560,
     height: 1440,
     parent: 'game-container',
     scale: {

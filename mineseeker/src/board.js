@@ -26,19 +26,30 @@ export class Board
         this.playing = false;
         this.populated = false;
 
+        this.scannerRange = 0;
+
         this.data = [];
+
+        this.devices = [];
+        this.devicesInPlay = [];
 
         this.container = this.scene.add.container(this.sceneX, this.sceneY);
 
         // this.button;
 
-        this.createCells();
         this.createCounters();
+        this.initBoard();
 
         // this.button.setInteractive();
 
         // this.button.on('pointerdown', this.onButtonDown, this);
         // this.button.on('pointerup', this.onButtonUp, this);
+    }
+
+    async initBoard() {
+        this.createCells();
+        await this.loadDevices();
+        await this.newGame();        
     }
 
     set timeCounter(val){
@@ -65,23 +76,51 @@ export class Board
         return this.#pointsCounter;
     }
 
+    async newGame(){
+        this.timeCounter = 99;
+        this.scansCounter = 5;
+        this.pointsCounter = 0;
+
+        this.playDevice('scanerRangeExpansion');
+    }
+
+    playDevice(name) {
+        const device = this.devices.find(device => device.name === name);
+        if (device && this.devicesInPlay.length < 5) {
+            const dev = new device.class(this);
+            this.devicesInPlay.push(dev);
+            dev.play();
+        }
+    }
+
+    async loadDevice(name) {
+        this.devices.push({
+            name: name,
+            class: (await import(`./devices/${name}.js`)).default
+        });
+    }
+
+    async loadDevices () {
+        await this.loadDevice('scanerRangeExpansion');
+    }
+
     createCounters (){
         this.timeCounterDisplay = this.scene.add.text(this.sceneX, 14, ``, {
-            fontSize: 64,
+            fontSize: 48,
             color: '#000000',
             fontFamily: 'Kode Mono'
         });
         this.scansCounterDisplay = this.scene.add.text(this.sceneX + this.width * this.cellSize, 14, ``, {
-            fontSize: 64,
+            fontSize: 48,
             color: '#000000',
             fontFamily: 'Kode Mono'
         }).setOrigin(1, 0);
         this.pointsCounterDisplay = this.scene.add.text(this.sceneX + this.width * this.cellSize / 2, 14, ``, {
-            fontSize: 64,
+            fontSize: 48,
             color: '#000000',
             fontFamily: 'Kode Mono'
         }).setOrigin(0.5, 0);
-        this.timeCounter = 10;
+        this.timeCounter = 99;
         this.scansCounter = 5;
         this.pointsCounter = 0;
     }
@@ -103,12 +142,26 @@ export class Board
         }
     }
 
+    mineLegend (cell, index)
+    {
+        const w = this.cellSize / 2;
+        const r = this.cellSize * (0.05 + cell.bomb * 0.05);
+        const x = this.sceneX + this.width * this.cellSize / 2 - this.bombsCounter * w / 2 + index * w + w / 2;
+        const y = this.sceneY - w + 22;
+
+        cell.mineLegend = this.scene.add.circle(x, y, r, 0x000000);
+   }
+
     async generate (startIndex)
     {
         //const mines = this.generateThreeMines(startIndex);
         const mines = this.generateRandomMines(startIndex);
 
+        mines.sort((a, b) => { return b.bomb - a.bomb; });
+
+        let i = 0;
         mines.forEach(cell => {
+            this.mineLegend(cell, i++);
 
             //  Update the 8 cells around this bomb cell
             const adjacent = this.getAdjacentCells(cell);
@@ -189,18 +242,24 @@ export class Board
         }
     }
 
-    generateRandomMines (startIndex)
+    generateRandomMines (startIndex, powerDistribution = [1.0 / 3, 1.0 / 3, 1.0 / 3])
     {
         const mines = [];
+        powerDistribution = powerDistribution.map((val, index) => { return this.bombQty * val; });
 
         do {
             const location = Phaser.Math.Between(0, this.size - 1);
-
             const cell = this.getCell(location);
 
             if (!cell.bomb && cell.index !== startIndex)
             {
-                cell.bomb = Phaser.Math.Between(1, 3);
+                do {
+                    const p = Phaser.Math.Between(0, powerDistribution.length - 1);
+                    if(powerDistribution[p] > 0) {
+                        cell.bomb = p + 1;
+                        powerDistribution[p]--;
+                    }
+                } while (!cell.bomb);
 
                 this.bombQty--;
 
