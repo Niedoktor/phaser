@@ -12,6 +12,8 @@ export class Game extends Phaser.Scene {
 
     create() {
         this.input.mouse.disableContextMenu();
+        this.matter.world.engine.timing.timeScale = 0.25;
+        this.tweens.timeScale = 0.25;
 
         const width = 10;
         const height = 10;
@@ -30,7 +32,7 @@ export class Game extends Phaser.Scene {
                 families: [ 'Roboto Mono', 'Doto', 'Sixtyfour', 'Kode Mono' ]
             },
             active: () => {
-                this.board = new Board(this, x, y, cellSize, width, height, 20);
+                this.board = new Board(this, x, y, cellSize, width, height, 12);
             }
         });
 

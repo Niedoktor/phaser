@@ -32,11 +32,11 @@ export class Cell
         //this.tile.on('pointerup', this.onPointerUp, this);
     }
 
-    onPointerDown (pointer)
+    async onPointerDown (pointer)
     {
         if (!this.board.populated)
         {
-            this.board.generate(this.index);
+            await this.board.generate(this.index);
         }
 
         if ((this.open && !this.bomb) || !this.board.playing || this.exploded)
@@ -70,7 +70,18 @@ export class Cell
             const er = this.cellSize * this.bomb;
 
             this.mine = new Mine(this.scene, x, y, r, f, this.bomb, er);
+
+            this.mine.mine.setOnCollide(() => {
+                if(this.mine.mine) this.mineBlowUp(this.mine);
+            })
         }
+    }
+
+    mineBlowUp (mine)
+    {
+        this.board.pointsCounter += mine.power * this.board.sequence;
+        this.board.sequence++;
+        mine.blowUp();
     }
 
     onClick ()
@@ -81,7 +92,8 @@ export class Cell
             if(!this.open){
                 this.scan();
             }
-            this.mine.blowUp();
+            this.board.sequence = 1;
+            this.mineBlowUp(this.mine);
         }
         else
         {

@@ -22,7 +22,11 @@ const config = {
                 x: 0,
                 y: 0
             },
-            debug: false
+            debug: false,
+            runner: {
+               isFixed: true,
+               fps: 60
+            }
         }
     },
     // plugins: {

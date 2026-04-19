@@ -28,22 +28,21 @@ export class Mine
                 mask: 0xFFFFFFFF,
             },
         });
-        this.mine.setOnCollide(() => {
-            if(this.mine) this.blowUp();
-        })
 
         this.label = this.scene.add.text(this.x, this.y, this.power, {
             fontSize: 48,
             color: '#ffffff',
-            fontFamily: 'Kode Mono'
+            fontFamily: 'Sixtyfour'
         }).setOrigin(0.5);
     }
 
-    blowUp() {
+    blowUp () {
         this.mine.destroy();
-        this.label.destroy();
+        //this.label.destroy();
 
         this.mine = null;
+
+        this.scene.cameras.main.shake(1500, this.power * 0.001, true);
 
         const layers = this.radius / this.fragSize;
 
@@ -58,10 +57,10 @@ export class Mine
                     this.y + Math.sin(Phaser.Math.DegToRad(i * angleStep + j * angleStep / 2)) * radius,
                     this.fragSize,
                     this.fragSize,
-                    0x000000
+                    Phaser.Display.Color.GetColor(Phaser.Math.Between(0, 0xFF), 0, 0)
                 );
 
-                const forceMagnitude = Math.sqrt(this.expRadius) * 0.014;
+                const forceMagnitude = this.expRadius * 0.0012;
                 const v = new Phaser.Math.Vector2(rect.x - this.x, rect.y - this.y);
                 v.normalize();
 
@@ -71,7 +70,7 @@ export class Mine
                         width: this.fragSize,
                         height: this.fragSize
                     },
-                    frictionAir: 0.2,
+                    frictionAir: 0.045,
                     //friction: 1,
                     //frictionStatic: 1,
                     force: {
@@ -96,5 +95,19 @@ export class Mine
                 });
             }
         }
+
+        setTimeout(() => {
+            this.label.setText('X');
+            this.label.setColor('#ff0000');
+            this.label.setFontSize(this.power * 30);
+            this.label.setAlpha(0);
+
+            this.scene.tweens.add({
+                targets: this.label,
+                alpha: 1,
+                duration: 500,
+                ease: 'Linear'
+            });            
+        }, 1000);
     }
 }

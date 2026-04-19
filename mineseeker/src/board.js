@@ -5,8 +5,9 @@ export class Board
 {
     #timeCounter;
     #scansCounter;
+    #pointsCounter;
 
-    constructor (scene, sceneX, sceneY, cellSize, width, height, bombs)
+    constructor (scene, sceneX, sceneY, cellSize, width, height, mines)
     {
         this.scene = scene;
 
@@ -19,8 +20,8 @@ export class Board
         this.height = height;
         this.size = width * height;
 
-        this.bombQty = bombs;
-        this.bombsCounter = bombs;
+        this.bombQty = mines;
+        this.bombsCounter = mines;
 
         this.playing = false;
         this.populated = false;
@@ -56,6 +57,14 @@ export class Board
         return this.#scansCounter;
     }
 
+    set pointsCounter(val){
+        this.#pointsCounter = val;
+        this.pointsCounterDisplay.setText(`POINTS: ${this.#pointsCounter}`);
+    }
+    get pointsCounter(){
+        return this.#pointsCounter;
+    }
+
     createCounters (){
         this.timeCounterDisplay = this.scene.add.text(this.sceneX, 14, ``, {
             fontSize: 64,
@@ -67,8 +76,14 @@ export class Board
             color: '#000000',
             fontFamily: 'Kode Mono'
         }).setOrigin(1, 0);
+        this.pointsCounterDisplay = this.scene.add.text(this.sceneX + this.width * this.cellSize / 2, 14, ``, {
+            fontSize: 64,
+            color: '#000000',
+            fontFamily: 'Kode Mono'
+        }).setOrigin(0.5, 0);
         this.timeCounter = 10;
         this.scansCounter = 5;
+        this.pointsCounter = 0;
     }
 
     createCells ()
@@ -88,29 +103,12 @@ export class Board
         }
     }
 
-    generate (startIndex)
+    async generate (startIndex)
     {
-        let qty = this.bombQty;
+        //const mines = this.generateThreeMines(startIndex);
+        const mines = this.generateRandomMines(startIndex);
 
-        const bombs = [];
-
-        do {
-            const location = Phaser.Math.Between(0, this.size - 1);
-
-            const cell = this.getCell(location);
-
-            if (!cell.bomb && cell.index !== startIndex)
-            {
-                cell.bomb = Phaser.Math.Between(1, 3);
-
-                qty--;
-
-                bombs.push(cell);
-            }
-
-        } while (qty > 0);
-
-        bombs.forEach(cell => {
+        mines.forEach(cell => {
 
             //  Update the 8 cells around this bomb cell
             const adjacent = this.getAdjacentCells(cell);
@@ -128,13 +126,13 @@ export class Board
         this.populated = true;
         this.state = 1;
 
-        for (let x = 0; x < this.width; x++)
-        {
-            for (let y = 0; y < this.height; y++)
-            {
-                this.data[x][y].scan();
-            }
-        }        
+        // for (let x = 0; x < this.width; x++)
+        // {
+        //     for (let y = 0; y < this.height; y++)
+        //     {
+        //         this.data[x][y].scan();
+        //     }
+        // }        
     }
 
     getCell (index)
@@ -190,4 +188,44 @@ export class Board
             }
         }
     }
+
+    generateRandomMines (startIndex)
+    {
+        const mines = [];
+
+        do {
+            const location = Phaser.Math.Between(0, this.size - 1);
+
+            const cell = this.getCell(location);
+
+            if (!cell.bomb && cell.index !== startIndex)
+            {
+                cell.bomb = Phaser.Math.Between(1, 3);
+
+                this.bombQty--;
+
+                mines.push(cell);
+            }
+
+        } while (this.bombQty > 0);
+
+        return mines;
+    }
+
+    generateThreeMines (startIndex)
+    {
+        const mines = [];
+
+        let cell = this.getCellXY(3, 4);
+        cell.bomb = 1;
+        mines.push(cell);
+        cell = this.getCellXY(5, 4);
+        cell.bomb = 3;
+        mines.push(cell);
+        cell = this.getCellXY(7, 4);
+        cell.bomb = 2;
+        mines.push(cell);
+
+        return mines;
+    }    
 }
