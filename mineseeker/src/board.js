@@ -27,6 +27,8 @@ export class Board
         this.populated = false;
 
         this.scannerRange = 0;
+        this.pointsModifier = 0;
+        this.pointsMultiplier = 1;
 
         this.data = [];
 
@@ -82,6 +84,12 @@ export class Board
         this.pointsCounter = 0;
 
         this.playDevice('scanerRangeExpansion');
+        this.playDevice('pointsModifierOnlySmall');
+        //this.playDevice('pointsModifierOnlyMedium');
+        //this.playDevice('pointsModifierOnlyBig');
+        this.playDevice('pointsMultiplierOnlySmall');
+        //this.playDevice('pointsMultiplierOnlyMedium');
+        //this.playDevice('pointsMultiplierOnlyBig');
     }
 
     playDevice(name) {
@@ -102,6 +110,14 @@ export class Board
 
     async loadDevices () {
         await this.loadDevice('scanerRangeExpansion');
+        await this.loadDevice('pointsModifier');
+        await this.loadDevice('pointsMultiplier');
+        await this.loadDevice('pointsModifierOnlySmall');
+        await this.loadDevice('pointsModifierOnlyMedium');
+        await this.loadDevice('pointsModifierOnlyBig');
+        await this.loadDevice('pointsMultiplierOnlySmall');
+        await this.loadDevice('pointsMultiplierOnlyMedium');
+        await this.loadDevice('pointsMultiplierOnlyBig');
     }
 
     createCounters (){
@@ -146,7 +162,7 @@ export class Board
     {
         const w = this.cellSize / 2;
         const r = this.cellSize * (0.05 + cell.bomb * 0.05);
-        const x = this.sceneX + this.width * this.cellSize / 2 - this.bombsCounter * w / 2 + index * w + w / 2;
+        const x = this.sceneX + this.width * this.cellSize / 2 - this.bombQty * w / 2 + index * w + w / 2;
         const y = this.sceneY - w + 22;
 
         cell.mineLegend = this.scene.add.circle(x, y, r, 0x000000);
@@ -155,12 +171,12 @@ export class Board
     async generate (startIndex)
     {
         //const mines = this.generateThreeMines(startIndex);
-        const mines = this.generateRandomMines(startIndex);
+        this.minedCells = this.generateRandomMines(startIndex);
 
-        mines.sort((a, b) => { return b.bomb - a.bomb; });
+        this.minedCells.sort((a, b) => { return b.bomb - a.bomb; });
 
         let i = 0;
-        mines.forEach(cell => {
+        this.minedCells.forEach(cell => {
             this.mineLegend(cell, i++);
 
             //  Update the 8 cells around this bomb cell
@@ -247,6 +263,7 @@ export class Board
         const mines = [];
         powerDistribution = powerDistribution.map((val, index) => { return this.bombQty * val; });
 
+        let minesPlaced = 0;
         do {
             const location = Phaser.Math.Between(0, this.size - 1);
             const cell = this.getCell(location);
@@ -261,12 +278,12 @@ export class Board
                     }
                 } while (!cell.bomb);
 
-                this.bombQty--;
+                minesPlaced++;
 
                 mines.push(cell);
             }
 
-        } while (this.bombQty > 0);
+        } while (minesPlaced < this.bombQty);
 
         return mines;
     }

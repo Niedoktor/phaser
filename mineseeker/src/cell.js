@@ -66,28 +66,35 @@ export class Cell
                 if(cell){
                     if(!cell.open){
                         cell.show();
-                    }
-                    if(cell.bomb){
-                        const x = this.board.sceneX + cell.x * cell.cellSize + (cell.cellSize / 2);
-                        const y = this.board.sceneY + cell.y * cell.cellSize + (cell.cellSize / 2);
-                        const r = cell.cellSize * (0.1 + cell.bomb * 0.1);
-                        const f = cell.cellSize / 20;
-                        const er = cell.cellSize * cell.bomb;
 
-                        cell.mine = new Mine(this.scene, x, y, r, f, cell.bomb, er);
+                        if(cell.bomb){
+                            const x = this.board.sceneX + cell.x * cell.cellSize + (cell.cellSize / 2);
+                            const y = this.board.sceneY + cell.y * cell.cellSize + (cell.cellSize / 2);
+                            const r = cell.cellSize * (0.1 + cell.bomb * 0.1);
+                            const f = cell.cellSize / 20;
+                            const er = cell.cellSize * cell.bomb;
 
-                        cell.mine.mine.setOnCollide(() => {
-                            if(cell.mine.mine) cell.mineBlowUp(cell.mine);
-                        })
+                            cell.mine = new Mine(this.scene, x, y, r, f, cell.bomb, er);
+
+                            cell.mine.mine.setOnCollide(() => {
+                                if(cell.mine.mine) cell.cellBlowUp(cell.mine);
+                            })
+                        }
                     }
                 }
             }
         }
     }
 
-    mineBlowUp (mine)
+    cellBlowUp (mine)
     {
-        this.board.pointsCounter += mine.power * this.board.sequence;
+        this.board.devicesInPlay.forEach(device => {
+            if(device.use){
+                device.use();
+            }
+        });
+        this.exploded = true;        
+        this.board.pointsCounter += (mine.power + this.board.currentPointsModifier) * this.board.sequence * this.board.currentPointsMultiplier;
         this.board.sequence++;
         mine.blowUp();
 
@@ -105,12 +112,13 @@ export class Cell
     {
         if (this.bomb)
         {
-            this.exploded = true;
             if(!this.open){
                 this.scan();
             }
             this.board.sequence = 1;
-            this.mineBlowUp(this.mine);
+            this.board.currentPointsModifier = this.board.pointsModifier;
+            this.board.currentPointsMultiplier = this.board.pointsMultiplier;
+            this.cellBlowUp(this.mine);
         }
         else
         {
@@ -128,6 +136,8 @@ export class Cell
 
     show ()
     {
+        if(this.open) return;
+
         if(this.value > 0) {
             const val = this.scene.add.text(this.x * this.cellSize + (this.cellSize / 2), this.y * this.cellSize + (this.cellSize / 2), this.value, {
                 fontSize: 64,
