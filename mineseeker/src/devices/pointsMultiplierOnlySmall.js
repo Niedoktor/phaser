@@ -6,13 +6,9 @@ export default class PointsMultiplierOnlySmall extends Device {
         this.desc = "Points Multiplier +3 if small mines left only";
     }
 
-    play(){
-        this.render();
-    }
-
     use(){
         if (this.board.minedCells.filter(cell => cell.bomb > 1 && !cell.exploded).length === 0) {
-            this.board.currentPointsMultiplier += 3;
+            this.board.currentPointsMultiplier[0] += 3;
         }
     }
 }

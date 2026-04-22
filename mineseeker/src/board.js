@@ -27,8 +27,8 @@ export class Board
         this.populated = false;
 
         this.scannerRange = 0;
-        this.pointsModifier = 0;
-        this.pointsMultiplier = 1;
+        this.pointsModifier = [0, 0, 0];
+        this.pointsMultiplier = [1, 1, 1];
 
         this.data = [];
 
@@ -83,13 +83,17 @@ export class Board
         this.scansCounter = 5;
         this.pointsCounter = 0;
 
-        this.playDevice('scanerRangeExpansion');
-        this.playDevice('pointsModifierOnlySmall');
+        this.playDevice('scannerModifierRange');
+        this.playDevice('scannerModifierPower');
+        //this.playDevice('pointsModifierOnlySmall');
         //this.playDevice('pointsModifierOnlyMedium');
         //this.playDevice('pointsModifierOnlyBig');
-        this.playDevice('pointsMultiplierOnlySmall');
+        //this.playDevice('pointsMultiplierOnlySmall');
         //this.playDevice('pointsMultiplierOnlyMedium');
         //this.playDevice('pointsMultiplierOnlyBig');
+        this.playDevice('pointsModifierDiscSmall');
+        //this.playDevice('pointsModifierDiscMedium');
+        //this.playDevice('pointsModifierDiscBig');
     }
 
     playDevice(name) {
@@ -109,7 +113,8 @@ export class Board
     }
 
     async loadDevices () {
-        await this.loadDevice('scanerRangeExpansion');
+        await this.loadDevice('scannerModifierRange');
+        await this.loadDevice('scannerModifierPower');
         await this.loadDevice('pointsModifier');
         await this.loadDevice('pointsMultiplier');
         await this.loadDevice('pointsModifierOnlySmall');
@@ -118,6 +123,9 @@ export class Board
         await this.loadDevice('pointsMultiplierOnlySmall');
         await this.loadDevice('pointsMultiplierOnlyMedium');
         await this.loadDevice('pointsMultiplierOnlyBig');
+        await this.loadDevice('pointsModifierDiscSmall');
+        await this.loadDevice('pointsModifierDiscMedium');
+        await this.loadDevice('pointsModifierDiscBig');
     }
 
     createCounters (){

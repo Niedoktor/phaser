@@ -6,13 +6,9 @@ export default class PointsModifierOnlyBig extends Device {
         this.desc = "Points Modifier +1 if big mines left only";
     }
 
-    play(){
-        this.render();
-    }
-
     use(){
         if (this.board.minedCells.filter(cell => cell.bomb < 3 && !cell.exploded).length === 0) {
-            this.board.currentPointsModifier += 1;
+            this.board.currentPointsModifier[2]++;
         }
     }
 }

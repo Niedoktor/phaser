@@ -6,13 +6,9 @@ export default class PointsModifierOnlyMedium extends Device {
         this.desc = "Points Modifier +2 if medium mines left only";
     }
 
-    play(){
-        this.render();
-    }
-
     use(){
         if (this.board.minedCells.filter(cell => cell.bomb !== 2 && !cell.exploded).length === 0) {
-            this.board.currentPointsModifier += 2;
+            this.board.currentPointsModifier[1] += 2;
         }
     }
 }

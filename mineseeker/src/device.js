@@ -3,7 +3,11 @@ export default class Device {
 
     constructor(board) {
         this.board = board;
-    }   
+    }
+
+    play(){
+        this.render();
+    }
 
     render(){
         const y = this.board.sceneY + (this.board.devicesInPlay.length - 1) * 2 * this.board.cellSize + 8;

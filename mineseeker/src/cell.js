@@ -88,13 +88,8 @@ export class Cell
 
     cellBlowUp (mine)
     {
-        this.board.devicesInPlay.forEach(device => {
-            if(device.use){
-                device.use();
-            }
-        });
         this.exploded = true;        
-        this.board.pointsCounter += (mine.power + this.board.currentPointsModifier) * this.board.sequence * this.board.currentPointsMultiplier;
+        this.board.pointsCounter += (mine.power + this.board.currentPointsModifier[mine.power - 1]) * this.board.sequence * this.board.currentPointsMultiplier[mine.power - 1];
         this.board.sequence++;
         mine.blowUp();
 
@@ -116,8 +111,13 @@ export class Cell
                 this.scan();
             }
             this.board.sequence = 1;
-            this.board.currentPointsModifier = this.board.pointsModifier;
-            this.board.currentPointsMultiplier = this.board.pointsMultiplier;
+            this.board.currentPointsModifier = Phaser.Utils.Objects.Clone(this.board.pointsModifier);
+            this.board.currentPointsMultiplier = Phaser.Utils.Objects.Clone(this.board.pointsMultiplier);
+            this.board.devicesInPlay.forEach(device => {
+                if(device.use){
+                    device.use();
+                }
+            });            
             this.cellBlowUp(this.mine);
         }
         else
