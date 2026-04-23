@@ -39,7 +39,9 @@ export class Cell
             await this.board.generate(this.index);
         }
 
-        if ((this.open && !this.bomb) || !this.board.playing || this.exploded)
+        const frags = this.scene.children.list.filter(gameObject => gameObject.frag).length;
+
+        if ((this.open && !this.bomb) || !this.board.playing || this.exploded || frags > 0)
         {
             return;
         }
@@ -107,6 +109,8 @@ export class Cell
     {
         if (this.bomb)
         {
+            document.body.style.cursor = 'wait';
+            
             if(!this.open){
                 this.scan();
             }
@@ -117,7 +121,7 @@ export class Cell
                 if(device.use){
                     device.use();
                 }
-            });            
+            });
             this.cellBlowUp(this.mine);
         }
         else

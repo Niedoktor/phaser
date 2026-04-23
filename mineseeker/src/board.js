@@ -91,7 +91,7 @@ export class Board
         //this.playDevice('pointsMultiplierOnlySmall');
         //this.playDevice('pointsMultiplierOnlyMedium');
         //this.playDevice('pointsMultiplierOnlyBig');
-        this.playDevice('pointsModifierDiscSmall');
+        //this.playDevice('pointsModifierDiscSmall');
         //this.playDevice('pointsModifierDiscMedium');
         //this.playDevice('pointsModifierDiscBig');
     }
@@ -126,6 +126,9 @@ export class Board
         await this.loadDevice('pointsModifierDiscSmall');
         await this.loadDevice('pointsModifierDiscMedium');
         await this.loadDevice('pointsModifierDiscBig');
+        await this.loadDevice('pointsMultiplierDiscSmall');
+        await this.loadDevice('pointsMultiplierDiscMedium');
+        await this.loadDevice('pointsMultiplierDiscBig');
     }
 
     createCounters (){
@@ -201,7 +204,6 @@ export class Board
 
         this.playing = true;
         this.populated = true;
-        this.state = 1;
 
         // for (let x = 0; x < this.width; x++)
         // {

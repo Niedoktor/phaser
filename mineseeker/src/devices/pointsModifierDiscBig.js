@@ -7,8 +7,12 @@ export default class PointsModifierDiscBig extends Device {
     }
 
     use(){
-        this.board.currentPointsModifier[0] -= 1;
-        this.board.currentPointsModifier[1] -= 1;
+        if(this.board.currentPointsModifier[0] > 0) {
+            this.board.currentPointsModifier[0] -= 1;
+        }
+        if(this.board.currentPointsModifier[1] > 0) {
+            this.board.currentPointsModifier[1] -= 1;
+        }
         this.board.currentPointsModifier[2] += 3;
     }
 }

@@ -7,8 +7,12 @@ export default class PointsModifierDiscMedium extends Device {
     }
 
     use(){
-        this.board.currentPointsModifier[0] -= 1;
+        if(this.board.currentPointsModifier[0] > 0) {
+            this.board.currentPointsModifier[0] -= 1;
+        }
         this.board.currentPointsModifier[1] += 3;
-        this.board.currentPointsModifier[2] -= 1;
+        if(this.board.currentPointsModifier[2] > 0) {
+            this.board.currentPointsModifier[2] -= 1;
+        }
     }
 }

@@ -57,8 +57,10 @@ export class Mine
                     this.y + Math.sin(Phaser.Math.DegToRad(i * angleStep + j * angleStep / 2)) * radius,
                     this.fragSize,
                     this.fragSize,
-                    Phaser.Display.Color.GetColor(Phaser.Math.Between(0, 0xFF), 0, 0)
+                    Phaser.Display.Color.GetColor(Phaser.Math.Between(0, 0xFF), 0, 0),
                 );
+
+                rect.frag = true;
 
                 const forceMagnitude = this.expRadius * 0.0012;
                 const v = new Phaser.Math.Vector2(rect.x - this.x, rect.y - this.y);
@@ -82,16 +84,22 @@ export class Mine
                         category: 0x0001,
                         mask: 0xFFFFFFFF,
                     },                    
-                    mass: Phaser.Math.FloatBetween(1, 3),
+                    mass: 2//Phaser.Math.FloatBetween(1, 3),
                 });
 
                 rect.setRotation(Phaser.Math.DegToRad(i * angleStep + j * angleStep / 2));
                 this.scene.tweens.add({
                     targets: rect,
                     alpha: 0,
-                    duration: rect.body.mass * 500, // Longer duration for heavier objects
-                    ease: 'Linear',
-                    onComplete: () => { rect.destroy(); } // Optional: destroy after fade
+                    duration: rect.body.mass * 300, // Longer duration for heavier objects
+                    ease: 'Cubic.in',
+                    onComplete: () => {
+                        rect.destroy();
+                        const frags = this.scene.children.list.filter(gameObject => gameObject.frag).length;
+                        if(frags === 0) {
+                            document.body.style.cursor = 'default';
+                        }
+                    } // Optional: destroy after fade
                 });
             }
         }
