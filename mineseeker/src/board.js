@@ -20,8 +20,8 @@ export class Board
         this.height = height;
         this.size = width * height;
 
-        this.bombQty = mines;
-        this.bombsCounter = mines;
+        this.minesQty = mines;
+        this.minesCounter = mines;
 
         this.playing = false;
         this.populated = false;
@@ -34,6 +34,8 @@ export class Board
 
         this.devices = [];
         this.devicesInPlay = [];
+
+        this.mines = [];
 
         this.container = this.scene.add.container(this.sceneX, this.sceneY);
 
@@ -51,6 +53,7 @@ export class Board
     async initBoard() {
         this.createCells();
         await this.loadDevices();
+        await this.loadMines();
         await this.newGame();        
     }
 
@@ -112,6 +115,13 @@ export class Board
         });
     }
 
+    async loadMine(name) {
+        this.mines.push({
+            name: name,
+            class: (await import(`./mines/${name}.js`)).default
+        });
+    }
+
     async loadDevices () {
         await this.loadDevice('scannerModifierRange');
         await this.loadDevice('scannerModifierPower');
@@ -129,6 +139,11 @@ export class Board
         await this.loadDevice('pointsMultiplierDiscSmall');
         await this.loadDevice('pointsMultiplierDiscMedium');
         await this.loadDevice('pointsMultiplierDiscBig');
+    }
+
+    async loadMines () {
+        await this.loadMine('fragMine');
+        await this.loadMine('fragMineDir');
     }
 
     createCounters (){
@@ -169,33 +184,27 @@ export class Board
         }
     }
 
-    mineLegend (cell, index)
-    {
-        const w = this.cellSize / 2;
-        const r = this.cellSize * (0.05 + cell.bomb * 0.05);
-        const x = this.sceneX + this.width * this.cellSize / 2 - this.bombQty * w / 2 + index * w + w / 2;
-        const y = this.sceneY - w + 22;
-
-        cell.mineLegend = this.scene.add.circle(x, y, r, 0x000000);
-   }
-
     async generate (startIndex)
     {
         //const mines = this.generateThreeMines(startIndex);
         this.minedCells = this.generateRandomMines(startIndex);
 
-        this.minedCells.sort((a, b) => { return b.bomb - a.bomb; });
+        this.minedCells.sort((a, b) => { return b.mineSize - a.mineSize; });
 
         let i = 0;
         this.minedCells.forEach(cell => {
-            this.mineLegend(cell, i++);
+            const w = this.cellSize / 2;
+            const x = this.sceneX + this.width * this.cellSize / 2 - this.minesQty * w / 2 + i * w + w / 2;
+            const y = this.sceneY - w + 22;
+
+            cell.mineClass.legend(cell, x, y, i++);
 
             //  Update the 8 cells around this bomb cell
             const adjacent = this.getAdjacentCells(cell);
 
             adjacent.forEach(adjacentCell => {
 
-                if (adjacentCell && !adjacentCell.bomb)
+                if (adjacentCell && !adjacentCell.mineSize)
                 {
                     adjacentCell.value++;
                 }
@@ -254,7 +263,7 @@ export class Board
     {
         const cell = this.getCellXY(x, y);
 
-        if (cell && !cell.open && !cell.bomb)
+        if (cell && !cell.open && !cell.mineSize)
         {
             cell.show();
 
@@ -268,32 +277,33 @@ export class Board
         }
     }
 
-    generateRandomMines (startIndex, powerDistribution = [1.0 / 3, 1.0 / 3, 1.0 / 3])
+    generateRandomMines (startIndex, sizeDistribution = [1.0 / 3, 1.0 / 3, 1.0 / 3])
     {
         const mines = [];
-        powerDistribution = powerDistribution.map((val, index) => { return this.bombQty * val; });
+        sizeDistribution = sizeDistribution.map((val, index) => { return this.minesQty * val; });
 
         let minesPlaced = 0;
         do {
             const location = Phaser.Math.Between(0, this.size - 1);
             const cell = this.getCell(location);
 
-            if (!cell.bomb && cell.index !== startIndex)
+            if (!cell.mineSize && cell.index !== startIndex)
             {
                 do {
-                    const p = Phaser.Math.Between(0, powerDistribution.length - 1);
-                    if(powerDistribution[p] > 0) {
-                        cell.bomb = p + 1;
-                        powerDistribution[p]--;
+                    const p = Phaser.Math.Between(0, sizeDistribution.length - 1);
+                    if(sizeDistribution[p] > 0) {
+                        cell.mineSize = p + 1;
+                        cell.mineClass = this.mines[1].class;
+                        sizeDistribution[p]--;
                     }
-                } while (!cell.bomb);
+                } while (!cell.mineSize);
 
                 minesPlaced++;
 
                 mines.push(cell);
             }
 
-        } while (minesPlaced < this.bombQty);
+        } while (minesPlaced < this.minesQty);
 
         return mines;
     }
@@ -303,13 +313,13 @@ export class Board
         const mines = [];
 
         let cell = this.getCellXY(3, 4);
-        cell.bomb = 1;
+        cell.mineSize = 1;
         mines.push(cell);
         cell = this.getCellXY(5, 4);
-        cell.bomb = 3;
+        cell.mineSize = 3;
         mines.push(cell);
         cell = this.getCellXY(7, 4);
-        cell.bomb = 2;
+        cell.mineSize = 2;
         mines.push(cell);
 
         return mines;

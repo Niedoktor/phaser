@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
-import { Mine } from './mine';
+import FragMine from './mines/fragMine';
 
 export class Cell
 {
-    constructor (board, index, x, y, cellSize)
+    constructor (board, index, x, y, size)
     {
         this.board = board;
         this.scene = board.scene;
@@ -12,19 +12,17 @@ export class Cell
         this.x = x;
         this.y = y;
 
-        this.cellSize = cellSize;
+        this.size = size;
 
         this.open = false;
-        this.bomb = false;
+        this.mineSize = false;
 
-        // this.flagged = false;
-        // this.query = false;
         this.exploded = false;
 
         //  0 = empty, 1,2,3,4,5,6,7,8 = number of adjacent bombs
         this.value = 0;
 
-        this.tile = this.scene.add.rectangle(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize, 0x000000).setOrigin(0).setStrokeStyle(2, 0xffffff);
+        this.tile = this.scene.add.rectangle(x * this.size, y * this.size, this.size, this.size, 0x000000).setOrigin(0).setStrokeStyle(2, 0xffffff);
         this.board.container.add(this.tile);
         this.tile.setInteractive();
 
@@ -41,7 +39,7 @@ export class Cell
 
         const frags = this.scene.children.list.filter(gameObject => gameObject.frag).length;
 
-        if ((this.open && !this.bomb) || !this.board.playing || this.exploded || frags > 0)
+        if ((this.open && !this.mineSize) || !this.board.playing || this.exploded || frags > 0)
         {
             return;
         }
@@ -69,14 +67,12 @@ export class Cell
                     if(!cell.open){
                         cell.show();
 
-                        if(cell.bomb){
-                            const x = this.board.sceneX + cell.x * cell.cellSize + (cell.cellSize / 2);
-                            const y = this.board.sceneY + cell.y * cell.cellSize + (cell.cellSize / 2);
-                            const r = cell.cellSize * (0.1 + cell.bomb * 0.1);
-                            const f = cell.cellSize / 20;
-                            const er = cell.cellSize * cell.bomb;
+                        if(cell.mineSize){
+                            const x = this.board.sceneX + cell.x * cell.size;
+                            const y = this.board.sceneY + cell.y * cell.size;
+                            const f = cell.size / 20;
 
-                            cell.mine = new Mine(this.scene, x, y, r, f, cell.bomb, er);
+                            cell.mine = new cell.mineClass(cell, x, y, f, cell.mineSize);
 
                             cell.mine.mine.setOnCollide(() => {
                                 if(cell.mine.mine) cell.cellBlowUp(cell.mine);
@@ -91,13 +87,13 @@ export class Cell
     cellBlowUp (mine)
     {
         this.exploded = true;        
-        this.board.pointsCounter += (mine.power + this.board.currentPointsModifier[mine.power - 1]) * this.board.sequence * this.board.currentPointsMultiplier[mine.power - 1];
+        this.board.pointsCounter += (mine.size + this.board.currentPointsModifier[mine.size - 1]) * this.board.sequence * this.board.currentPointsMultiplier[mine.size - 1];
         this.board.sequence++;
         mine.blowUp();
 
         if(this.mineLegend) {
             this.mineLegendX = this.scene.add.text(this.mineLegend.x, this.mineLegend.y, 'X', {
-                fontSize: 20 * mine.power,
+                fontSize: 20 * mine.size,
                 color: '#ff0000',
                 fontFamily: 'Sixtyfour'
             }).setOrigin(0.5, 0.45);
@@ -107,7 +103,7 @@ export class Cell
 
     onClick ()
     {
-        if (this.bomb)
+        if (this.mineSize)
         {
             document.body.style.cursor = 'wait';
             
@@ -143,7 +139,7 @@ export class Cell
         if(this.open) return;
 
         if(this.value > 0) {
-            const val = this.scene.add.text(this.x * this.cellSize + (this.cellSize / 2), this.y * this.cellSize + (this.cellSize / 2), this.value, {
+            const val = this.scene.add.text(this.x * this.size + (this.size / 2), this.y * this.size + (this.size / 2), this.value, {
                 fontSize: 64,
                 color: '#000000',
                 fontFamily: 'Kode Mono'

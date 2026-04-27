@@ -1,113 +1,103 @@
 import Phaser from 'phaser';
 
-export class Mine
+export default class Mine
 {
-    constructor (scene, x = 0, y = 0, radius = 30, fragSize = 5, power = 1, expRadius = 50)
+    constructor (cell, x = 0, y = 0, size = 1, fragSize = 5, forcePoint = { x: 0.5, y: 0.5 })
     {
-        this.scene = scene;
+        this.cell = cell;
+        this.scene = cell.scene;
 
         this.x = x;
         this.y = y;
-        this.radius = radius;
         this.fragSize = fragSize;
-        this.power = power;
-        this.expRadius = expRadius;
+        this.size = size;
+        this.forcePoint = forcePoint;
+        this.colGroup = this.scene.matter.world.nextGroup(true);
+    }
 
-        this.colGroup = this.scene.matter.world.nextGroup();
+    createFrag (x, y) {
+        const frag = this.scene.add.rectangle(
+            x,
+            y,
+            this.fragSize,
+            this.fragSize,
+            Phaser.Display.Color.GetColor(Phaser.Math.Between(0, 0xFF), 0, 0),
+        );
 
-        this.mine = this.scene.add.circle(this.x, this.y, this.radius, 0x000000);
-        this.scene.matter.add.gameObject(this.mine, {
+        frag.frag = true;
+
+        const forceMagnitude = this.size * 0.16;
+        const v = new Phaser.Math.Vector2(frag.x - this.x - this.cell.size * (this.forcePoint.x - this.mine.originX), frag.y - this.y - this.cell.size * (this.forcePoint.y - this.mine.originY));
+        v.normalize();
+
+        this.scene.matter.add.gameObject(frag, {
             shape: {
-                type: 'circle',
-                radius: this.radius,
+                type: 'rectangle',
+                width: this.fragSize,
+                height: this.fragSize
             },
-            isStatic: true,
+            frictionAir: 0.045,
+            //friction: 1,
+            //frictionStatic: 1,
+            force: {
+                x: v.x * forceMagnitude,
+                y: v.y * forceMagnitude
+            },
             collisionFilter: {
                 group: this.colGroup,
                 category: 0x0001,
                 mask: 0xFFFFFFFF,
-            },
+            },                    
+            mass: 2
         });
 
-        this.label = this.scene.add.text(this.x, this.y, this.power, {
-            fontSize: 48,
-            color: '#ffffff',
-            fontFamily: 'Sixtyfour'
-        }).setOrigin(0.5, 0.45);
+        frag.setRotation(v.angle());
+
+        this.scene.tweens.add({
+            targets: frag,
+            alpha: 0,
+            duration: frag.body.mass * 300, // Longer duration for heavier objects
+            ease: 'Cubic.in',
+            onComplete: () => {
+                frag.destroy();
+                const frags = this.scene.children.list.filter(gameObject => gameObject.frag).length;
+                if(frags === 0) {
+                    document.body.style.cursor = 'default';
+                }
+            } // Optional: destroy after fade
+        });        
+
+        return frag;
     }
 
     blowUp () {
-        this.mine.destroy();
-        //this.label.destroy();
+        this.scene.cameras.main.shake(1500, this.size * 0.001, true);
+        
+        const layers = this.cell.size / this.fragSize;
 
-        this.mine = null;
-
-        this.scene.cameras.main.shake(1500, this.power * 0.001, true);
-
-        const layers = this.radius / this.fragSize;
-
-        for(let j = 0; j < layers - 1; j++) {
-            const radius = this.radius - this.fragSize * (j + 1);
+        for(let j = 1; j < layers; j++) {
+            const radius = this.fragSize * j - this.fragSize / 2;
             const layerSize = 2 * Math.PI * radius / this.fragSize;
             const angleStep = 360 / layerSize;
+            const angleOffset = Phaser.Math.DegToRad(360 * Math.random());
 
             for (let i = 0; i < layerSize; i++) {
-                const rect = this.scene.add.rectangle(
-                    this.x + Math.cos(Phaser.Math.DegToRad(i * angleStep + j * angleStep / 2)) * radius,
-                    this.y + Math.sin(Phaser.Math.DegToRad(i * angleStep + j * angleStep / 2)) * radius,
-                    this.fragSize,
-                    this.fragSize,
-                    Phaser.Display.Color.GetColor(Phaser.Math.Between(0, 0xFF), 0, 0),
-                );
+                const cX = Math.cos(Phaser.Math.DegToRad(i * angleStep + angleOffset)) * radius + this.cell.size * (this.forcePoint.x - this.mine.originX);
+                const cY = Math.sin(Phaser.Math.DegToRad(i * angleStep + angleOffset)) * radius + this.cell.size * (this.forcePoint.y - this.mine.originY);
 
-                rect.frag = true;
-
-                const forceMagnitude = this.expRadius * 0.0012;
-                const v = new Phaser.Math.Vector2(rect.x - this.x, rect.y - this.y);
-                v.normalize();
-
-                this.scene.matter.add.gameObject(rect, {
-                    shape: {
-                        type: 'rectangle',
-                        width: this.fragSize,
-                        height: this.fragSize
-                    },
-                    frictionAir: 0.045,
-                    //friction: 1,
-                    //frictionStatic: 1,
-                    force: {
-                        x: v.x * forceMagnitude,
-                        y: v.y * forceMagnitude
-                    },
-                    collisionFilter: {
-                        group: this.colGroup,
-                        category: 0x0001,
-                        mask: 0xFFFFFFFF,
-                    },                    
-                    mass: 2//Phaser.Math.FloatBetween(1, 3),
-                });
-
-                rect.setRotation(Phaser.Math.DegToRad(i * angleStep + j * angleStep / 2));
-                this.scene.tweens.add({
-                    targets: rect,
-                    alpha: 0,
-                    duration: rect.body.mass * 300, // Longer duration for heavier objects
-                    ease: 'Cubic.in',
-                    onComplete: () => {
-                        rect.destroy();
-                        const frags = this.scene.children.list.filter(gameObject => gameObject.frag).length;
-                        if(frags === 0) {
-                            document.body.style.cursor = 'default';
-                        }
-                    } // Optional: destroy after fade
-                });
+                if(this.mine.geom.contains(cX, cY)) {
+                    const frag = this.createFrag(
+                        this.x + cX,
+                        this.y + cY
+                    );
+                }
             }
-        }
+        }        
 
         setTimeout(() => {
             this.label.setText('X');
             this.label.setColor('#ff0000');
-            this.label.setFontSize(this.power * 30);
+            this.label.setFontSize(this.size * 30);
             this.label.setAlpha(0);
 
             this.scene.tweens.add({
