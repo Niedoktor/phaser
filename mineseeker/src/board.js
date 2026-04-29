@@ -194,9 +194,10 @@ export class Board
         let i = 0;
         this.minedCells.forEach(cell => {
             const w = this.cellSize / 2;
-            const x = this.sceneX + this.width * this.cellSize / 2 - this.minesQty * w / 2 + i * w + w / 2;
+            const x = this.sceneX + (this.width + i) * w - (this.minesQty - 1) * w / 2;
             const y = this.sceneY - w + 22;
 
+            this.scene.add.rectangle(x, y, w, w, 0x000000, 0.1).setStrokeStyle(2, 0xaaaaaa);
             cell.mineClass.legend(cell, x, y, i++);
 
             //  Update the 8 cells around this bomb cell

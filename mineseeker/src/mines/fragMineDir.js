@@ -6,7 +6,7 @@ export default class FragMineDir extends Mine {
         x += (cell.size / 2);
         y += (cell.size / 2);
 
-        super(cell, x, y, size, fragSize, 0.32);
+        super(cell, x, y, size, fragSize, size * 0.32);
 
         this.radius = cell.mineParams.radius;
         this.angle = cell.mineParams.angle;

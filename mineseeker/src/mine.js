@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 export default class Mine
 {
-    constructor (cell, x = 0, y = 0, size = 1, fragSize = 5, forceMultipier, forcePoint = { x: 0.5, y: 0.5 })
+    constructor (cell, x = 0, y = 0, size = 1, fragSize = 5, blowUpForce, forcePoint = { x: 0.5, y: 0.5 })
     {
         this.cell = cell;
         this.scene = cell.scene;
@@ -12,7 +12,7 @@ export default class Mine
         this.fragSize = fragSize;
         this.size = size;
         this.forcePoint = forcePoint;
-        this.forceMultipier = forceMultipier;
+        this.blowUpForce = blowUpForce;
         this.colGroup = this.scene.matter.world.nextGroup(true);
     }
 
@@ -41,8 +41,7 @@ export default class Mine
 
         frag.frag = true;
 
-        const forceMagnitude = this.size * this.forceMultipier;
-        const v = new Phaser.Math.Vector2(frag.x - this.x - this.cell.size * (this.forcePoint.x - this.mine.originX), frag.y - this.y - this.cell.size * (this.forcePoint.y - this.mine.originY));
+            const v = new Phaser.Math.Vector2(frag.x - this.x - this.cell.size * (this.forcePoint.x - this.mine.originX), frag.y - this.y - this.cell.size * (this.forcePoint.y - this.mine.originY));
         v.normalize();
 
         this.scene.matter.add.gameObject(frag, {
@@ -55,8 +54,8 @@ export default class Mine
             //friction: 1,
             //frictionStatic: 1,
             force: {
-                x: v.x * forceMagnitude,
-                y: v.y * forceMagnitude
+                x: v.x * this.blowUpForce,
+                y: v.y * this.blowUpForce
             },
             collisionFilter: {
                 group: this.colGroup,
@@ -114,10 +113,16 @@ export default class Mine
         }        
 
         setTimeout(() => {
-            this.label.setText('X');
-            this.label.setColor('#ff0000');
-            this.label.setFontSize(this.size * 30);
-            this.label.setAlpha(0);
+            // this.label.setText('X');
+            // this.label.setColor('#ff0000');
+            // this.label.setFontSize(this.size * 30);
+            // this.label.setAlpha(0);
+
+            this.label = this.scene.add.text(this.x, this.y, 'X', {
+                fontSize: this.size * 30,
+                color: '#ff0000',
+                fontFamily: 'Sixtyfour'
+            }).setOrigin(0.5, 0.45).setAlpha(0);
 
             this.scene.tweens.add({
                 targets: this.label,

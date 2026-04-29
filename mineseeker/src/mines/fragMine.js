@@ -6,7 +6,7 @@ export default class FragMine extends Mine {
         x += (cell.size / 2);
         y += (cell.size / 2);
 
-        super(cell, x, y, size, fragSize, 0.16, { x: 0.5, y: 0.5 });
+        super(cell, x, y, size, fragSize, size * 0.16, { x: 0.5, y: 0.5 });
 
         this.radius = cell.mineParams.radius;
 
