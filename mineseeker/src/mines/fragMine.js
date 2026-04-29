@@ -6,13 +6,19 @@ export default class FragMine extends Mine {
         x += (cell.size / 2);
         y += (cell.size / 2);
 
-        super(cell, x, y, size, fragSize, { x: 0.5, y: 0.5 });
+        super(cell, x, y, size, fragSize, 0.16, { x: 0.5, y: 0.5 });
 
-        this.radius = cell.size * (0.1 + cell.mineSize * 0.1);
+        this.radius = cell.mineParams.radius;
 
-        this.mine = this.scene.add.circle(this.x, this.y, this.radius, 0x000000);
-        const path = this.mine.pathData.join(' ');
-        const points = this.mine.geom.getPoints(100);
+        this.init();
+    }
+
+    render()
+    {
+        const circle = this.scene.add.circle(this.x, this.y, this.radius, 0x000000);
+        const verts = circle.pathData.join(' ');
+        this.mine = this.scene.add.polygon(this.x, this.y, verts, 0x000000);
+        const points = this.mine.geom.getPoints(20);
         this.scene.matter.add.gameObject(this.mine, {
             shape: {
                 type: 'fromVerts',
@@ -26,12 +32,13 @@ export default class FragMine extends Mine {
                 mask: 0xFFFFFFFF,
             },
         });
+        circle.destroy();
+    }
 
-        this.label = this.scene.add.text(this.x, this.y, this.size, {
-            fontSize: 48,
-            color: '#ffffff',
-            fontFamily: 'Sixtyfour'
-        }).setOrigin(0.5, 0.45);
+    static setMineParams(cell) {
+        cell.mineParams = {
+            radius: cell.size * (0.1 + cell.mineSize * 0.1)
+        }
     }
 
     static legend(cell, x, y, index){

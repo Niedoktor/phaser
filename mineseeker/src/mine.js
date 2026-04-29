@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 export default class Mine
 {
-    constructor (cell, x = 0, y = 0, size = 1, fragSize = 5, forcePoint = { x: 0.5, y: 0.5 })
+    constructor (cell, x = 0, y = 0, size = 1, fragSize = 5, forceMultipier, forcePoint = { x: 0.5, y: 0.5 })
     {
         this.cell = cell;
         this.scene = cell.scene;
@@ -12,7 +12,22 @@ export default class Mine
         this.fragSize = fragSize;
         this.size = size;
         this.forcePoint = forcePoint;
+        this.forceMultipier = forceMultipier;
         this.colGroup = this.scene.matter.world.nextGroup(true);
+    }
+
+    init()
+    {
+        this.render();
+        this.forcePointContainer = this.scene.add.container(this.cell.sceneX + this.cell.size * this.forcePoint.x, this.cell.sceneY + this.cell.size * this.forcePoint.y);
+        this.forcePointContainer.add(this.scene.add.circle(0, 0, 2, 0xff0000));
+        for(let i = 1; i < this.size + 1; i++)
+            this.forcePointContainer.add(this.scene.add.circle(0, 0, 8 * i, 0, 0).setStrokeStyle(4, 0xff0000));
+        // this.label = this.scene.add.text(this.x, this.y, 'III', {
+        //     fontSize: 48,
+        //     color: '#ffffff',
+        //     fontFamily: 'Sixtyfour'
+        // }).setOrigin(0.5, 0.45);
     }
 
     createFrag (x, y) {
@@ -26,7 +41,7 @@ export default class Mine
 
         frag.frag = true;
 
-        const forceMagnitude = this.size * 0.16;
+        const forceMagnitude = this.size * this.forceMultipier;
         const v = new Phaser.Math.Vector2(frag.x - this.x - this.cell.size * (this.forcePoint.x - this.mine.originX), frag.y - this.y - this.cell.size * (this.forcePoint.y - this.mine.originY));
         v.normalize();
 
@@ -72,6 +87,8 @@ export default class Mine
 
     blowUp () {
         this.scene.cameras.main.shake(1500, this.size * 0.001, true);
+
+        this.forcePointContainer.destroy();
         
         const layers = this.cell.size / this.fragSize;
 
@@ -82,13 +99,15 @@ export default class Mine
             const angleOffset = Phaser.Math.DegToRad(360 * Math.random());
 
             for (let i = 0; i < layerSize; i++) {
-                const cX = Math.cos(Phaser.Math.DegToRad(i * angleStep + angleOffset)) * radius + this.cell.size * (this.forcePoint.x - this.mine.originX);
-                const cY = Math.sin(Phaser.Math.DegToRad(i * angleStep + angleOffset)) * radius + this.cell.size * (this.forcePoint.y - this.mine.originY);
+                const x = Math.cos(Phaser.Math.DegToRad(i * angleStep + angleOffset)) * radius + this.cell.size * this.forcePoint.x;
+                const y = Math.sin(Phaser.Math.DegToRad(i * angleStep + angleOffset)) * radius + this.cell.size * this.forcePoint.y;
+                const cX = x - (this.cell.size - this.mine.width) * this.mine.originX;
+                const cY = y - (this.cell.size - this.mine.height) * this.mine.originY;
 
                 if(this.mine.geom.contains(cX, cY)) {
                     const frag = this.createFrag(
-                        this.x + cX,
-                        this.y + cY
+                        this.x + x - this.cell.size * this.mine.originX,
+                        this.y + y - this.cell.size * this.mine.originY,
                     );
                 }
             }

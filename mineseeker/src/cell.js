@@ -14,6 +14,9 @@ export class Cell
 
         this.size = size;
 
+        this.sceneX = x * this.size + this.board.sceneX;
+        this.sceneY = y * this.size + this.board.sceneY;
+
         this.open = false;
         this.mineSize = false;
 
@@ -22,7 +25,7 @@ export class Cell
         //  0 = empty, 1,2,3,4,5,6,7,8 = number of adjacent bombs
         this.value = 0;
 
-        this.tile = this.scene.add.rectangle(x * this.size, y * this.size, this.size, this.size, 0x000000).setOrigin(0).setStrokeStyle(2, 0xffffff);
+        this.tile = this.scene.add.rectangle(this.x * this.size, this.y * this.size, this.size, this.size, 0x000000).setOrigin(0).setStrokeStyle(2, 0xffffff);
         this.board.container.add(this.tile);
         this.tile.setInteractive();
 

@@ -293,7 +293,8 @@ export class Board
                     const p = Phaser.Math.Between(0, sizeDistribution.length - 1);
                     if(sizeDistribution[p] > 0) {
                         cell.mineSize = p + 1;
-                        cell.mineClass = this.mines[1].class;
+                        cell.mineClass = this.mines[0].class;
+                        cell.mineClass.setMineParams(cell);
                         sizeDistribution[p]--;
                     }
                 } while (!cell.mineSize);
