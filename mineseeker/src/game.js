@@ -1,13 +1,12 @@
 import Phaser from 'phaser';
-import { Board } from './board';
+import Board from './board';
 
-export class Game extends Phaser.Scene {
+export default class Game extends Phaser.Scene {
     constructor() {
         super('Game');
     }
 
     preload() {
-        this.load.script('webfont', 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js');
     }
 
     create() {
@@ -17,30 +16,11 @@ export class Game extends Phaser.Scene {
 
         const width = 10;
         const height = 10;
-        const y = 140;        
-        const cellSize = (this.scale.height - y - 50) / height;
+        const y = Math.floor(this.scale.height * 0.1);
+        const cellSize = (this.scale.height - y - this.scale.height * 0.01) / height;
         const x = Math.floor((this.scale.width / 2) - (width * cellSize) / 2);
 
-        //  0 = waiting to create the grid
-        //  1 = playing
-        //  2 = game won
-        //  3 = game lost
-        this.state = 0;
-
-        WebFont.load({
-            google: {
-                families: [ 'Roboto Mono', 'Doto', 'Sixtyfour', 'Kode Mono' ]
-            },
-            active: () => {
-                this.board = new Board(this, x, y, cellSize, width, height, 12);
-            }
-        });
-
-        // this.matter.world.on('collisionstart', (event, bodyA, bodyB) =>
-        // {
-        //     bodyA.gameObject.setFillColor(0xff0000);
-        //     bodyB.gameObject.setFillColor(0x00ff00);
-        // });        
+        this.board = new Board(this, x, y, cellSize, width, height, 12);    
     }
 
     update() {

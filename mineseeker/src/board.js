@@ -1,11 +1,16 @@
 import Phaser from 'phaser';
 import { Cell } from './cell';
 
-export class Board
+export default class Board
 {
     #timeCounter;
     #scansCounter;
     #pointsCounter;
+    #minesCounter;
+    #level;
+    #scoreTarget;
+    #cash;
+    #reward;
 
     constructor (scene, sceneX, sceneY, cellSize, width, height, mines)
     {
@@ -13,6 +18,8 @@ export class Board
 
         this.sceneX = sceneX;
         this.sceneY = sceneY;
+        this.sceneW = cellSize * width;
+        this.sceneH = cellSize * height;
 
         this.cellSize = cellSize;
 
@@ -21,7 +28,6 @@ export class Board
         this.size = width * height;
 
         this.minesQty = mines;
-        this.minesCounter = mines;
 
         this.playing = false;
         this.populated = false;
@@ -36,6 +42,9 @@ export class Board
         this.devicesInPlay = [];
 
         this.mines = [];
+
+        this.firstLevelScore = 50;
+        this.firstLevelReward = 3;
 
         this.container = this.scene.add.container(this.sceneX, this.sceneY);
 
@@ -59,7 +68,7 @@ export class Board
 
     set timeCounter(val){
         this.#timeCounter = val;
-        this.timeCounterDisplay.setText(`TIME: ${this.#timeCounter}`);
+        this.timeCounterDisplay.setText(`TIME ${this.#timeCounter}`);
     }
     get timeCounter(){
         return this.#timeCounter;
@@ -67,7 +76,7 @@ export class Board
 
     set scansCounter(val){
         this.#scansCounter = val;
-        this.scansCounterDisplay.setText(`SCANS: ${this.#scansCounter}`);
+        this.scansCounterDisplay.setText(`SCANS ${this.#scansCounter}`);
     }
     get scansCounter(){
         return this.#scansCounter;
@@ -75,16 +84,64 @@ export class Board
 
     set pointsCounter(val){
         this.#pointsCounter = val;
-        this.pointsCounterDisplay.setText(`POINTS: ${this.#pointsCounter}`);
+        this.pointsCounterDisplay.setText(`SCORE ${this.#pointsCounter}`);
     }
     get pointsCounter(){
         return this.#pointsCounter;
+    }
+
+    set minesCounter(val){
+        this.#minesCounter = val;
+        this.minesCounterDisplay.setText(`MINES ${this.#minesCounter}`);
+    }
+    get minesCounter(){
+        return this.#minesCounter;
+    }
+
+    set level(val){
+        this.#level = val;
+        this.levelDisplay.setText(`LEVEL ${this.#level}`);
+    }
+    get level(){
+        return this.#level;
+    }
+
+    set scoreTarget(val){
+        this.#scoreTarget = val;
+        this.scoreTargetDisplay.setText(`${this.#scoreTarget}`);
+    }
+    get scoreTarget(){
+        return this.#scoreTarget;
+    }
+
+    set cash(val){
+        this.#cash = val;
+        this.cashDisplay.setText(`CASH ${this.#cash}$`);
+    }
+    get cash(){
+        return this.#cash;
+    }    
+
+    set reward(val){
+        this.#reward = val;
+        this.rewardDisplay.setText(`REWARD ${this.#reward}$`);
+    }
+    get reward(){
+        return this.#reward;
     }
 
     async newGame(){
         this.timeCounter = 99;
         this.scansCounter = 5;
         this.pointsCounter = 0;
+        this.timeCounter = 99;
+        this.scansCounter = 5;
+        this.pointsCounter = 0;
+        this.minesCounter = this.minesQty;
+        this.level = 1;
+        this.scoreTarget = this.firstLevelScore;
+        this.cash = 0;
+        this.reward = this.firstLevelReward;
 
         this.playDevice('scannerModifierRange');
         this.playDevice('scannerModifierPower');
@@ -147,24 +204,51 @@ export class Board
     }
 
     createCounters (){
-        this.timeCounterDisplay = this.scene.add.text(this.sceneX, 14, ``, {
-            fontSize: 48,
+        const fontSize = Math.floor(this.scene.scale.height * 0.04);
+        const fontStyle = {
+            fontSize: fontSize,
             color: '#000000',
-            fontFamily: 'Kode Mono'
-        });
-        this.scansCounterDisplay = this.scene.add.text(this.sceneX + this.width * this.cellSize, 14, ``, {
-            fontSize: 48,
+            fontFamily: 'Doto',
+            fontStyle: 'bold'
+        }
+
+        const w = this.sceneX * 0.95;
+        const h = this.scene.scale.height * 0.98;
+        const y = this.scene.scale.height * 0.01;
+        const x = this.scene.scale.width * 7 / 8 - w / 2;
+        
+        const info = this.scene.add.container(x, y);
+
+        info.add(this.scene.add.rectangle(0, 0, w, h, 0xdddddd).setOrigin(0).setStrokeStyle(4, 0x000000));
+
+        info.add(this.levelDisplay = this.scene.add.text(w / 2, fontSize, ``, fontStyle).setOrigin(0.5, 0));
+
+        info.add(this.scene.add.text(w / 2, info.last.y + fontSize * 2, `Score to next level`, {
+            fontSize: fontSize * 0.5,
             color: '#000000',
-            fontFamily: 'Kode Mono'
-        }).setOrigin(1, 0);
-        this.pointsCounterDisplay = this.scene.add.text(this.sceneX + this.width * this.cellSize / 2, 14, ``, {
-            fontSize: 48,
-            color: '#000000',
-            fontFamily: 'Kode Mono'
-        }).setOrigin(0.5, 0);
-        this.timeCounter = 99;
-        this.scansCounter = 5;
-        this.pointsCounter = 0;
+            fontFamily: 'Doto',
+            fontStyle: 'bold'
+        }).setOrigin(0.5, 0));
+
+        info.add(this.scoreTargetDisplay = this.scene.add.text(w / 2, info.last.y + fontSize * 0.6, ``, fontStyle).setOrigin(0.5, 0));
+        
+        info.add(this.rewardDisplay = this.scene.add.text(w / 2, info.last.y + fontSize * 2, ``, fontStyle).setOrigin(0.5, 0));
+
+        info.add(this.scene.add.line(w / 2, info.last.y + fontSize * 2, 0, 0, w, 0, 0x000000).setOrigin(0.5));
+
+        info.add(this.pointsCounterDisplay = this.scene.add.text(w / 2, info.last.y + fontSize, ``, fontStyle).setOrigin(0.5, 0));
+
+        info.add(this.scene.add.line(w / 2, info.last.y + fontSize * 2, 0, 0, w, 0, 0x000000).setOrigin(0.5));
+
+        info.add(this.minesCounterDisplay = this.scene.add.text(w / 2, info.last.y + fontSize, ``, fontStyle).setOrigin(0.5, 0));
+        
+        info.add(this.scansCounterDisplay = this.scene.add.text(w / 2, info.last.y + fontSize * 2, ``, fontStyle).setOrigin(0.5, 0));
+
+        info.add(this.scene.add.line(w / 2, info.last.y + fontSize * 2, 0, 0, w, 0, 0x000000).setOrigin(0.5));
+
+        info.add(this.cashDisplay = this.scene.add.text(w / 2, info.last.y + fontSize, ``, fontStyle).setOrigin(0.5, 0));
+
+        info.add(this.timeCounterDisplay = this.scene.add.text(w / 2, info.last.y + fontSize * 2, ``, fontStyle).setOrigin(0.5, 0));
     }
 
     createCells ()
@@ -193,11 +277,11 @@ export class Board
 
         let i = 0;
         this.minedCells.forEach(cell => {
-            const w = this.cellSize / 2;
-            const x = this.sceneX + (this.width + i) * w - (this.minesQty - 1) * w / 2;
-            const y = this.sceneY - w + 22;
+            const w = this.sceneW / (this.minesQty + 1);
+            const x = this.sceneX + this.sceneW / 2 - ((this.minesQty - 1) / 2 - i) * w;
+            const y = this.sceneY / 2;
 
-            this.scene.add.rectangle(x, y, w, w, 0x000000, 0.1).setStrokeStyle(2, 0xaaaaaa);
+            this.scene.add.rectangle(x, y, w, w, 0xdddddd).setStrokeStyle(2, 0x000000).setOrigin(0.5);
             cell.mineClass.legend(cell, x, y, i++);
 
             //  Update the 8 cells around this bomb cell

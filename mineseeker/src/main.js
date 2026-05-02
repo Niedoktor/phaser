@@ -1,8 +1,6 @@
 import Phaser from 'phaser';
-//import { Explosion } from './explosion';
-//import { MinePlugin } from './mine';
-//import { Grid } from './grid';
-import { Game } from './game';
+import MenuScene from './menu';
+import Game from './game';
 
 const config = {
     title: 'Mineseeker',
@@ -35,6 +33,7 @@ const config = {
     //     ]
     // },        
     scene: [
+        MenuScene,
         Game
     ]
 };

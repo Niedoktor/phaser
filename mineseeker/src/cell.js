@@ -92,6 +92,7 @@ export class Cell
         this.exploded = true;        
         this.board.pointsCounter += (mine.size + this.board.currentPointsModifier[mine.size - 1]) * this.board.sequence * this.board.currentPointsMultiplier[mine.size - 1];
         this.board.sequence++;
+        this.board.minesCounter--;
         mine.blowUp();
 
         if(this.mineLegend) {
