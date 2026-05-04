@@ -68,11 +68,11 @@ export default class FragMineDir extends Mine {
         const w = cell.size / 2;
         const r = cell.size * (0.05 + cell.mineSize * 0.05);
 
-        cell.mineLegend = cell.scene.add.arc(x, y, r, cell.mineParams.angle, cell.mineParams.angle + 180, false, 0x000000);
+        return cell.mineLegend = cell.scene.add.arc(x, y, r, cell.mineParams.angle, cell.mineParams.angle + 180, false, 0x000000);
     }
 
-    blowUp () {
-        super.blowUp();
+    blowUp (completeCallback) {
+        super.blowUp(completeCallback);
         
         this.mine.destroy();
         this.mine = null;

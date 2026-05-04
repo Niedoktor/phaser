@@ -40,8 +40,9 @@ export default class Mine
         );
 
         frag.frag = true;
+        this.frags++;
 
-            const v = new Phaser.Math.Vector2(frag.x - this.x - this.cell.size * (this.forcePoint.x - this.mine.originX), frag.y - this.y - this.cell.size * (this.forcePoint.y - this.mine.originY));
+        const v = new Phaser.Math.Vector2(frag.x - this.x - this.cell.size * (this.forcePoint.x - this.mine.originX), frag.y - this.y - this.cell.size * (this.forcePoint.y - this.mine.originY));
         v.normalize();
 
         this.scene.matter.add.gameObject(frag, {
@@ -74,20 +75,21 @@ export default class Mine
             ease: 'Cubic.in',
             onComplete: () => {
                 frag.destroy();
-                const frags = this.scene.children.list.filter(gameObject => gameObject.frag).length;
-                if(frags === 0) {
-                    document.body.style.cursor = 'default';
-                }
+                this.frags--;
+                if(this.frags === 0 && this.completeCallback) this.completeCallback();
             } // Optional: destroy after fade
         });        
 
         return frag;
     }
 
-    blowUp () {
+    blowUp (completeCallback) {
+        this.completeCallback = completeCallback;
+
         this.scene.cameras.main.shake(1500, this.size * 0.001, true);
 
         this.forcePointContainer.destroy();
+        this.frags = 0;
         
         const layers = this.cell.size / this.fragSize;
 

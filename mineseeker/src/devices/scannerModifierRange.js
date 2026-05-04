@@ -1,13 +1,13 @@
 import Device from "../device.js";
 
 export default class ScannerModifierRange extends Device {
-    constructor(board) {
-        super(board);
+    constructor(game, index) {
+        super(game, index);
         this.desc = "Scanner Range +1.";
     }
 
-    play(){
-        this.board.scannerRange++;
+    play(board){
+        board.scannerRange++;
         this.render();
     }
 }

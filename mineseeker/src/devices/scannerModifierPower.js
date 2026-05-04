@@ -1,13 +1,13 @@
 import Device from "../device.js";
 
 export default class ScannerModifierPower extends Device {
-    constructor(board) {
-        super(board);
+    constructor(game, index) {
+        super(game, index);
         this.desc = "Scanner Power +1.";
     }
 
-    play(){
-        this.board.scansCounter++;
+    play(board){
+        board.scansCounter++;
         this.render();
     }
 }

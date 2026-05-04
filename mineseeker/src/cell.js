@@ -25,7 +25,7 @@ export class Cell
         //  0 = empty, 1,2,3,4,5,6,7,8 = number of adjacent bombs
         this.value = 0;
 
-        this.tile = this.scene.add.rectangle(this.x * this.size, this.y * this.size, this.size, this.size, 0x000000).setOrigin(0).setStrokeStyle(2, 0xffffff);
+        this.tile = this.scene.add.rectangle(this.x * this.size, this.y * this.size, this.size, this.size, 0x000000).setOrigin(0).setStrokeStyle(4, 0xffffff);
         this.board.container.add(this.tile);
         this.tile.setInteractive();
 
@@ -93,7 +93,13 @@ export class Cell
         this.board.pointsCounter += (mine.size + this.board.currentPointsModifier[mine.size - 1]) * this.board.sequence * this.board.currentPointsMultiplier[mine.size - 1];
         this.board.sequence++;
         this.board.minesCounter--;
-        mine.blowUp();
+        mine.blowUp(() => {
+            const frags = this.scene.children.list.filter(gameObject => gameObject.frag).length;
+            if(frags === 0) {
+                document.body.style.cursor = 'default';
+                this.board.checkWinLooseConditions();
+            }
+        });
 
         if(this.mineLegend) {
             this.mineLegendX = this.scene.add.text(this.mineLegend.x, this.mineLegend.y, 'X', {
@@ -102,6 +108,7 @@ export class Cell
                 fontFamily: 'Sixtyfour'
             }).setOrigin(0.5, 0.45);
             this.mineLegend.setAlpha(0.5);
+            this.board.legendContainer.add(this.mineLegendX);
         }
     }
 
@@ -117,7 +124,7 @@ export class Cell
             this.board.sequence = 1;
             this.board.currentPointsModifier = Phaser.Utils.Objects.Clone(this.board.pointsModifier);
             this.board.currentPointsMultiplier = Phaser.Utils.Objects.Clone(this.board.pointsMultiplier);
-            this.board.devicesInPlay.forEach(device => {
+            this.board.game.devicesInPlay.forEach(device => {
                 if(device.use){
                     device.use();
                 }
@@ -152,7 +159,7 @@ export class Cell
         }
 
         this.tile.setFillStyle(0xffffff);
-        this.tile.setStrokeStyle(2, 0x000000);
+        this.tile.setStrokeStyle(4, 0x000000);
 
         this.open = true;
     }

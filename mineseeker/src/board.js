@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { Cell } from './cell';
+import LooseForm from './looseForm';
+import WinForm from './winForm';
 
 export default class Board
 {
@@ -7,14 +9,13 @@ export default class Board
     #scansCounter;
     #pointsCounter;
     #minesCounter;
-    #level;
     #scoreTarget;
-    #cash;
     #reward;
 
-    constructor (scene, sceneX, sceneY, cellSize, width, height, mines)
+    constructor (game, sceneX, sceneY, cellSize, width, height, mines)
     {
-        this.scene = scene;
+        this.game = game;
+        this.scene = game;
 
         this.sceneX = sceneX;
         this.sceneY = sceneY;
@@ -29,7 +30,7 @@ export default class Board
 
         this.minesQty = mines;
 
-        this.playing = false;
+        this.playing = false;        
         this.populated = false;
 
         this.scannerRange = 0;
@@ -38,45 +39,32 @@ export default class Board
 
         this.data = [];
 
-        this.devices = [];
-        this.devicesInPlay = [];
-
-        this.mines = [];
-
-        this.firstLevelScore = 50;
-        this.firstLevelReward = 3;
-
         this.container = this.scene.add.container(this.sceneX, this.sceneY);
 
-        // this.button;
+        const w = this.sceneW / (this.minesQty + 1);
+        const x = this.sceneX + this.sceneW / 2 - ((this.minesQty - 1) / 2) * w;
+        
+        this.legendContainer = this.scene.add.container(x, (this.sceneY - w) / 2);
 
-        this.createCounters();
         this.initBoard();
-
-        // this.button.setInteractive();
-
-        // this.button.on('pointerdown', this.onButtonDown, this);
-        // this.button.on('pointerup', this.onButtonUp, this);
     }
 
     async initBoard() {
         this.createCells();
-        await this.loadDevices();
-        await this.loadMines();
-        await this.newGame();        
+        await this.newBoard();        
     }
 
     set timeCounter(val){
         this.#timeCounter = val;
-        this.timeCounterDisplay.setText(`TIME ${this.#timeCounter}`);
+        this.game.timeCounterDisplay.setText(`Time ${this.#timeCounter}`);
     }
     get timeCounter(){
         return this.#timeCounter;
     }
-
+    
     set scansCounter(val){
         this.#scansCounter = val;
-        this.scansCounterDisplay.setText(`SCANS ${this.#scansCounter}`);
+        this.game.scansCounterDisplay.setText(`Scans ${this.#scansCounter}`);
     }
     get scansCounter(){
         return this.#scansCounter;
@@ -84,7 +72,7 @@ export default class Board
 
     set pointsCounter(val){
         this.#pointsCounter = val;
-        this.pointsCounterDisplay.setText(`SCORE ${this.#pointsCounter}`);
+        this.game.pointsCounterDisplay.setText(`Score ${this.#pointsCounter}`);
     }
     get pointsCounter(){
         return this.#pointsCounter;
@@ -92,163 +80,45 @@ export default class Board
 
     set minesCounter(val){
         this.#minesCounter = val;
-        this.minesCounterDisplay.setText(`MINES ${this.#minesCounter}`);
+        this.game.minesCounterDisplay.setText(`Mines ${this.#minesCounter}`);
     }
     get minesCounter(){
         return this.#minesCounter;
     }
 
-    set level(val){
-        this.#level = val;
-        this.levelDisplay.setText(`LEVEL ${this.#level}`);
-    }
-    get level(){
-        return this.#level;
-    }
-
     set scoreTarget(val){
         this.#scoreTarget = val;
-        this.scoreTargetDisplay.setText(`${this.#scoreTarget}`);
+        this.game.scoreTargetDisplay.setText(`${this.#scoreTarget}`);
     }
     get scoreTarget(){
         return this.#scoreTarget;
     }
 
-    set cash(val){
-        this.#cash = val;
-        this.cashDisplay.setText(`CASH ${this.#cash}$`);
-    }
-    get cash(){
-        return this.#cash;
-    }    
-
     set reward(val){
         this.#reward = val;
-        this.rewardDisplay.setText(`REWARD ${this.#reward}$`);
+        this.game.rewardDisplay.setText(`Reward ${this.#reward}$`);
     }
     get reward(){
         return this.#reward;
     }
 
-    async newGame(){
+    async newBoard(){
         this.timeCounter = 99;
         this.scansCounter = 5;
         this.pointsCounter = 0;
-        this.timeCounter = 99;
         this.scansCounter = 5;
         this.pointsCounter = 0;
         this.minesCounter = this.minesQty;
-        this.level = 1;
-        this.scoreTarget = this.firstLevelScore;
-        this.cash = 0;
-        this.reward = this.firstLevelReward;
+        this.scoreTarget = this.game.level == 1 ? this.game.firstLevelScore : 2.5 * (this.game.level - 1) * this.game.firstLevelScore;
+        this.reward = Math.floor(this.game.firstLevelReward + this.game.level / 3);
 
-        this.playDevice('scannerModifierRange');
-        this.playDevice('scannerModifierPower');
-        //this.playDevice('pointsModifierOnlySmall');
-        //this.playDevice('pointsModifierOnlyMedium');
-        //this.playDevice('pointsModifierOnlyBig');
-        //this.playDevice('pointsMultiplierOnlySmall');
-        //this.playDevice('pointsMultiplierOnlyMedium');
-        //this.playDevice('pointsMultiplierOnlyBig');
-        //this.playDevice('pointsModifierDiscSmall');
-        //this.playDevice('pointsModifierDiscMedium');
-        //this.playDevice('pointsModifierDiscBig');
+        this.playDevices();
     }
 
-    playDevice(name) {
-        const device = this.devices.find(device => device.name === name);
-        if (device && this.devicesInPlay.length < 5) {
-            const dev = new device.class(this);
-            this.devicesInPlay.push(dev);
-            dev.play();
-        }
-    }
-
-    async loadDevice(name) {
-        this.devices.push({
-            name: name,
-            class: (await import(`./devices/${name}.js`)).default
+    playDevices() {
+        this.game.devicesInPlay.forEach(device => {
+            device.play(this);
         });
-    }
-
-    async loadMine(name) {
-        this.mines.push({
-            name: name,
-            class: (await import(`./mines/${name}.js`)).default
-        });
-    }
-
-    async loadDevices () {
-        await this.loadDevice('scannerModifierRange');
-        await this.loadDevice('scannerModifierPower');
-        await this.loadDevice('pointsModifier');
-        await this.loadDevice('pointsMultiplier');
-        await this.loadDevice('pointsModifierOnlySmall');
-        await this.loadDevice('pointsModifierOnlyMedium');
-        await this.loadDevice('pointsModifierOnlyBig');
-        await this.loadDevice('pointsMultiplierOnlySmall');
-        await this.loadDevice('pointsMultiplierOnlyMedium');
-        await this.loadDevice('pointsMultiplierOnlyBig');
-        await this.loadDevice('pointsModifierDiscSmall');
-        await this.loadDevice('pointsModifierDiscMedium');
-        await this.loadDevice('pointsModifierDiscBig');
-        await this.loadDevice('pointsMultiplierDiscSmall');
-        await this.loadDevice('pointsMultiplierDiscMedium');
-        await this.loadDevice('pointsMultiplierDiscBig');
-    }
-
-    async loadMines () {
-        await this.loadMine('fragMine');
-        await this.loadMine('fragMineDir');
-    }
-
-    createCounters (){
-        const fontSize = Math.floor(this.scene.scale.height * 0.04);
-        const fontStyle = {
-            fontSize: fontSize,
-            color: '#000000',
-            fontFamily: 'Doto',
-            fontStyle: 'bold'
-        }
-
-        const w = this.sceneX * 0.95;
-        const h = this.scene.scale.height * 0.98;
-        const y = this.scene.scale.height * 0.01;
-        const x = this.scene.scale.width * 7 / 8 - w / 2;
-        
-        const info = this.scene.add.container(x, y);
-
-        info.add(this.scene.add.rectangle(0, 0, w, h, 0xdddddd).setOrigin(0).setStrokeStyle(4, 0x000000));
-
-        info.add(this.levelDisplay = this.scene.add.text(w / 2, fontSize, ``, fontStyle).setOrigin(0.5, 0));
-
-        info.add(this.scene.add.text(w / 2, info.last.y + fontSize * 2, `Score to next level`, {
-            fontSize: fontSize * 0.5,
-            color: '#000000',
-            fontFamily: 'Doto',
-            fontStyle: 'bold'
-        }).setOrigin(0.5, 0));
-
-        info.add(this.scoreTargetDisplay = this.scene.add.text(w / 2, info.last.y + fontSize * 0.6, ``, fontStyle).setOrigin(0.5, 0));
-        
-        info.add(this.rewardDisplay = this.scene.add.text(w / 2, info.last.y + fontSize * 2, ``, fontStyle).setOrigin(0.5, 0));
-
-        info.add(this.scene.add.line(w / 2, info.last.y + fontSize * 2, 0, 0, w, 0, 0x000000).setOrigin(0.5));
-
-        info.add(this.pointsCounterDisplay = this.scene.add.text(w / 2, info.last.y + fontSize, ``, fontStyle).setOrigin(0.5, 0));
-
-        info.add(this.scene.add.line(w / 2, info.last.y + fontSize * 2, 0, 0, w, 0, 0x000000).setOrigin(0.5));
-
-        info.add(this.minesCounterDisplay = this.scene.add.text(w / 2, info.last.y + fontSize, ``, fontStyle).setOrigin(0.5, 0));
-        
-        info.add(this.scansCounterDisplay = this.scene.add.text(w / 2, info.last.y + fontSize * 2, ``, fontStyle).setOrigin(0.5, 0));
-
-        info.add(this.scene.add.line(w / 2, info.last.y + fontSize * 2, 0, 0, w, 0, 0x000000).setOrigin(0.5));
-
-        info.add(this.cashDisplay = this.scene.add.text(w / 2, info.last.y + fontSize, ``, fontStyle).setOrigin(0.5, 0));
-
-        info.add(this.timeCounterDisplay = this.scene.add.text(w / 2, info.last.y + fontSize * 2, ``, fontStyle).setOrigin(0.5, 0));
     }
 
     createCells ()
@@ -275,14 +145,14 @@ export default class Board
 
         this.minedCells.sort((a, b) => { return b.mineSize - a.mineSize; });
 
+        const w = this.sceneW / (this.minesQty + 1);
+
         let i = 0;
         this.minedCells.forEach(cell => {
-            const w = this.sceneW / (this.minesQty + 1);
-            const x = this.sceneX + this.sceneW / 2 - ((this.minesQty - 1) / 2 - i) * w;
-            const y = this.sceneY / 2;
+            const x = i * w
 
-            this.scene.add.rectangle(x, y, w, w, 0xdddddd).setStrokeStyle(2, 0x000000).setOrigin(0.5);
-            cell.mineClass.legend(cell, x, y, i++);
+            this.legendContainer.add(this.scene.add.rectangle(x, 0, w, w, 0xdddddd).setStrokeStyle(4, 0x000000).setOrigin(0.5, 0));
+            this.legendContainer.add(cell.mineClass.legend(cell, x, w / 2, i++));
 
             //  Update the 8 cells around this bomb cell
             const adjacent = this.getAdjacentCells(cell);
@@ -362,6 +232,24 @@ export default class Board
         }
     }
 
+    destroy(){
+        this.container.destroy();
+        this.legendContainer.destroy();
+    }
+
+    checkWinLooseConditions ()
+    {
+        if(this.minesCounter === 0 && this.pointsCounter < this.scoreTarget) {
+            this.playing = false;
+            new LooseForm(this, this.scene.scale.width / 4, this.scene.scale.height / 4);
+        }
+        if(this.pointsCounter >= this.scoreTarget) {
+            this.playing = false;
+            this.game.level++;
+            new WinForm(this, this.scene.scale.width / 4, this.scene.scale.height / 4);
+        }
+    }
+
     generateRandomMines (startIndex, sizeDistribution = [1.0 / 3, 1.0 / 3, 1.0 / 3])
     {
         const mines = [];
@@ -378,7 +266,7 @@ export default class Board
                     const p = Phaser.Math.Between(0, sizeDistribution.length - 1);
                     if(sizeDistribution[p] > 0) {
                         cell.mineSize = p + 1;
-                        cell.mineClass = this.mines[0].class;
+                        cell.mineClass = this.game.mines[0].class;
                         cell.mineClass.setMineParams(cell);
                         sizeDistribution[p]--;
                     }
@@ -409,5 +297,5 @@ export default class Board
         mines.push(cell);
 
         return mines;
-    }    
+    }
 }
