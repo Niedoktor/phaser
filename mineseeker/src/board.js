@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { Cell } from './cell';
 import LooseForm from './looseForm';
 import WinForm from './winForm';
+import ShopForm from './shopForm';
 
 export default class Board
 {
@@ -47,6 +48,8 @@ export default class Board
         this.legendContainer = this.scene.add.container(x, (this.sceneY - w) / 2);
 
         this.initBoard();
+
+        new ShopForm(this, this.scene.scale.width / 8, this.scene.scale.height / 8);
     }
 
     async initBoard() {
@@ -245,7 +248,6 @@ export default class Board
         }
         if(this.pointsCounter >= this.scoreTarget) {
             this.playing = false;
-            this.game.level++;
             new WinForm(this, this.scene.scale.width / 4, this.scene.scale.height / 4);
         }
     }

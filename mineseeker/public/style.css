@@ -1,3 +1,5 @@
+@font-face { font-family: LEDCalculator; src: url("LEDCalculator.ttf") format("truetype"); }
+
 body {
     margin: 0;
     padding: 0;

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import MenuScene from './menu';
+import Menu from './menu';
 import Game from './game';
 
 const config = {
@@ -27,13 +27,8 @@ const config = {
             }
         }
     },
-    // plugins: {
-    //     global: [
-    //         { key: 'MinePlugin', plugin: MinePlugin, start: true }
-    //     ]
-    // },        
     scene: [
-        MenuScene,
+        Menu,
         Game
     ]
 };

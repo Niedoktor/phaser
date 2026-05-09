@@ -1,10 +1,16 @@
+import Phaser from 'phaser';
+import Style from './styles';
+
 export default class Device {
     desc;
 
-    constructor(game, index) {
+    constructor(game, x, y, w, h) {
         this.game = game;
         this.scene = game;
-        this.index = index;
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
     }
 
     play(board){
@@ -12,19 +18,14 @@ export default class Device {
     }
 
     render(){
-        const w = this.game.columnWidth * 2 * 0.95;
-        const h = this.scene.scale.height / 5;
+        this.container = this.scene.add.container(this.x, this.y);
 
-        const y = this.index * h + h / 2;
-        const x = this.game.columnWidth;
-
-        this.scene.add.rectangle(x, y, w, h * 0.95, 0xdddddd).setOrigin(0.5).setStrokeStyle(4, 0x000000);
-        this.scene.add.text(x, y, this.desc, {
-            fontSize: 32,
-            color: '#000000',
-            fontFamily: 'Kode Mono',
-            wordWrap: { width: w * 0.8 },
+        this.container.add(this.scene.add.rectangle(0, 0, this.w, this.h, 0xdddddd).setOrigin(0).setStrokeStyle(4, 0x000000));
+        this.container.add(this.scene.add.text(this.w / 2, this.h / 2, this.desc, { ...Style.bla4,
+            wordWrap: { width: this.w * 0.8 },
             align: 'center'
-        }).setOrigin(0.5);
+        }).setOrigin(0.5));
+
+        return this.container;
     }
 }

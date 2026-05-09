@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import Style from './styles';
 
 export default class Mine
 {
@@ -23,11 +24,6 @@ export default class Mine
         this.forcePointContainer.add(this.scene.add.circle(0, 0, 2, 0xff0000));
         for(let i = 1; i < this.size + 1; i++)
             this.forcePointContainer.add(this.scene.add.circle(0, 0, 8 * i, 0, 0).setStrokeStyle(4, 0xff0000));
-        // this.label = this.scene.add.text(this.x, this.y, 'III', {
-        //     fontSize: 48,
-        //     color: '#ffffff',
-        //     fontFamily: 'Sixtyfour'
-        // }).setOrigin(0.5, 0.45);
     }
 
     createFrag (x, y) {
@@ -115,16 +111,7 @@ export default class Mine
         }        
 
         setTimeout(() => {
-            // this.label.setText('X');
-            // this.label.setColor('#ff0000');
-            // this.label.setFontSize(this.size * 30);
-            // this.label.setAlpha(0);
-
-            this.label = this.scene.add.text(this.x, this.y, 'X', {
-                fontSize: this.size * 30,
-                color: '#ff0000',
-                fontFamily: 'Sixtyfour'
-            }).setOrigin(0.5, 0.45).setAlpha(0);
+            this.label = this.scene.add.text(this.x, this.y, 'X', Style.red12).setOrigin(0.5).setAlpha(0);
 
             this.scene.tweens.add({
                 targets: this.label,

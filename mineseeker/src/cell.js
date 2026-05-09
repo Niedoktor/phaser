@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import FragMine from './mines/fragMine';
+import Style from './styles';
 
 export class Cell
 {
@@ -102,11 +103,7 @@ export class Cell
         });
 
         if(this.mineLegend) {
-            this.mineLegendX = this.scene.add.text(this.mineLegend.x, this.mineLegend.y, 'X', {
-                fontSize: 20 * mine.size,
-                color: '#ff0000',
-                fontFamily: 'Sixtyfour'
-            }).setOrigin(0.5, 0.45);
+            this.mineLegendX = this.scene.add.text(this.mineLegend.x, this.mineLegend.y, 'X', Style.red12).setOrigin(0.5, 0.5);
             this.mineLegend.setAlpha(0.5);
             this.board.legendContainer.add(this.mineLegendX);
         }
@@ -150,11 +147,7 @@ export class Cell
         if(this.open) return;
 
         if(this.value > 0) {
-            const val = this.scene.add.text(this.x * this.size + (this.size / 2), this.y * this.size + (this.size / 2), this.value, {
-                fontSize: 64,
-                color: '#000000',
-                fontFamily: 'Kode Mono'
-            }).setOrigin(0.5);
+            const val = this.scene.add.text(this.x * this.size + (this.size / 2), this.y * this.size + (this.size / 2), this.value, Style.bla7).setOrigin(0.5);
             this.board.container.add(val);
         }
 

@@ -1,8 +1,8 @@
 import Device from "../device.js";
 
 export default class ScannerModifierPower extends Device {
-    constructor(game, index) {
-        super(game, index);
+    constructor(game, x, y, w, h) {
+        super(game, x, y, w, h);
         this.desc = "Scanner Power +1.";
     }
 
