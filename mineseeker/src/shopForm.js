@@ -3,10 +3,10 @@ import Style from './styles';
 
 export default class ShopForm
 {
-    constructor (board, x, y)
+    constructor (game, x, y)
     {
-        this.board = board;
-        this.scene = board.scene;
+        this.game = game;
+        this.scene = game;
 
         const lineSpace = Math.floor(this.scene.scale.height * 0.07);
         const w = Math.floor(this.scene.scale.width * 0.75);
@@ -28,13 +28,13 @@ export default class ShopForm
 
         form.add(this.playButton = this.scene.add.text(w / 2, h - lineSpace / 2, 'Play', Style.bla7).setOrigin(0.5, 1));
 
-        this.devicesContainer.add(new board.game.devices[0].class(board.game, lineSpace * 0.1, lineSpace * 0.1, lineSpace * 3.6, lineSpace * 1.8).render());
-        this.devicesContainer.add(new board.game.devices[1].class(board.game, lineSpace * 0.2 + lineSpace * 3.6, lineSpace * 0.1, lineSpace * 3.6, lineSpace * 1.8).render());        
+        this.devicesContainer.add(new this.game.devices[0].class(this.game, lineSpace * 0.1, lineSpace * 0.1, lineSpace * 3.6, lineSpace * 1.8).render());
+        this.devicesContainer.add(new this.game.devices[1].class(this.game, lineSpace * 0.2 + lineSpace * 3.6, lineSpace * 0.1, lineSpace * 3.6, lineSpace * 1.8).render());        
 
         this.playButton.setInteractive();
         this.playButton.on('pointerdown', () => {
-            board.destroy();
-            board.game.initBoard();
+            this.game.board.destroy();
+            this.game.initBoard();
             form.destroy();
             delete this;
         });

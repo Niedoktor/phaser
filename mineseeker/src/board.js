@@ -48,8 +48,6 @@ export default class Board
         this.legendContainer = this.scene.add.container(x, (this.sceneY - w) / 2);
 
         this.initBoard();
-
-        new ShopForm(this, this.scene.scale.width / 8, this.scene.scale.height / 8);
     }
 
     async initBoard() {

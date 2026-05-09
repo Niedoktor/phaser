@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import Board from './board';
 import InfoPanel from './infoPanel';
+import ShopForm from './shopForm';
 
 export default class Game extends Phaser.Scene
 {   
@@ -54,6 +55,8 @@ export default class Game extends Phaser.Scene
         await this.loadDevices();
         await this.loadMines();
         await this.newGame();
+
+        new ShopForm(this, this.scale.width / 8, this.scale.height / 8);                
     }
 
     async loadDevice(name) {
