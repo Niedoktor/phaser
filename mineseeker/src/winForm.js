@@ -30,20 +30,21 @@ export default class WinForm
 
         form.add(this.scene.add.text(w - lineSpace, form.last.y, board.minesCounter.toString().padStart(10, '.') + '$', Style.bla7).setOrigin(1, 0.5));
 
-        form.add(this.nextLevelButton = this.scene.add.text(w / 2, h - lineSpace / 2, 'Next Level', Style.bla7).setOrigin(0.5, 1));
+        form.add(this.shopButton = this.scene.add.text(w / 2, h - lineSpace / 2, 'Shop', Style.bla7).setOrigin(0.5, 1));
 
-        this.nextLevelButton.setInteractive();
-        this.nextLevelButton.on('pointerdown', () => {
+        this.shopButton.setInteractive();
+        this.shopButton.on('pointerdown', () => {
             board.game.level++;
             board.game.cash += board.reward + board.minesCounter;
 
             form.destroy();
+            board.game.openShop();
         });
-        this.nextLevelButton.on('pointerover', () => {
-            this.nextLevelButton.setStyle(Style.red7);
+        this.shopButton.on('pointerover', () => {
+            this.shopButton.setStyle(Style.red7);
         });
-        this.nextLevelButton.on('pointerout', () => {
-            this.nextLevelButton.setStyle(Style.bla7);
+        this.shopButton.on('pointerout', () => {
+            this.shopButton.setStyle(Style.bla7);
         });        
     }
 }

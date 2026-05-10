@@ -9,7 +9,7 @@ export default class ShopForm
         this.scene = game;
 
         const lineSpace = Math.floor(this.scene.scale.height * 0.07);
-        const w = Math.floor(this.scene.scale.width * 0.75);
+        const w = Math.floor(this.scene.scale.width * 0.5);
         const h = Math.floor(this.scene.scale.height * 0.75);
 
         const form = this.scene.add.container(x, y);
@@ -24,25 +24,47 @@ export default class ShopForm
 
         form.add(this.devicesContainer = this.scene.add.container(lineSpace, form.last.y + lineSpace));
         
-        this.devicesContainer.add(this.scene.add.rectangle(0, 0, w - lineSpace * 2, lineSpace * 2, 0xffffff).setOrigin(0).setStrokeStyle(1, 0x000000));
+        this.devicesContainer.add(this.scene.add.rectangle(0, 0, w - lineSpace * 2, lineSpace * 2, 0xffffff).setOrigin(0).setStrokeStyle(4, 0x000000));
 
-        form.add(this.playButton = this.scene.add.text(w / 2, h - lineSpace / 2, 'Play', Style.bla7).setOrigin(0.5, 1));
+        form.add(this.nextLevelButton = this.scene.add.text(w / 2, h - lineSpace / 2, 'Next Level', Style.bla7).setOrigin(0.5, 1));
 
-        this.devicesContainer.add(new this.game.devices[0].class(this.game, lineSpace * 0.1, lineSpace * 0.1, lineSpace * 3.6, lineSpace * 1.8).render());
-        this.devicesContainer.add(new this.game.devices[1].class(this.game, lineSpace * 0.2 + lineSpace * 3.6, lineSpace * 0.1, lineSpace * 3.6, lineSpace * 1.8).render());        
+        const devices = [];
+        while(devices.length < this.game.shopDevicesCount){
+            const device = this.game.devices[Math.floor(Math.random() * this.game.devices.length)];
+            if(!devices.includes(device)){
+                devices.push(device);
+            }
+        }
 
-        this.playButton.setInteractive();
-        this.playButton.on('pointerdown', () => {
+        const basePrice = 1;
+        for(let i = 0; i < devices.length; i++) {
+            const device = new devices[i].class(this.game, lineSpace * 0.1 + i * (lineSpace * 3.7), lineSpace * 0.1, lineSpace * 3.6, lineSpace * 1.8);
+            const deviceContainer = device.render(basePrice);
+            this.devicesContainer.add(deviceContainer);
+            
+            device.rect.setInteractive();
+            device.rect.on('pointerdown', () => {
+                if(this.game.devicesInPlay.length < 5 && this.game.cash >= device.priceTier * basePrice){
+                    this.game.cash -= device.priceTier * basePrice;
+                    this.game.addDevice(devices[i].name);
+                    this.devicesContainer.remove(deviceContainer);
+                    deviceContainer.destroy();
+                }
+            });
+        }
+
+        this.nextLevelButton.setInteractive();
+        this.nextLevelButton.on('pointerdown', () => {
             this.game.board.destroy();
             this.game.initBoard();
             form.destroy();
             delete this;
         });
-        this.playButton.on('pointerover', () => {
-            this.playButton.setStyle(Style.red7);
+        this.nextLevelButton.on('pointerover', () => {
+            this.nextLevelButton.setStyle(Style.red7);
         });
-        this.playButton.on('pointerout', () => {
-            this.playButton.setStyle(Style.bla7);
+        this.nextLevelButton.on('pointerout', () => {
+            this.nextLevelButton.setStyle(Style.bla7);
         });        
     }
 }

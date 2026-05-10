@@ -41,6 +41,8 @@ export default class Game extends Phaser.Scene
 
         this.columnWidth = Math.floor(this.scale.width / 8);
 
+        this.shopDevicesCount = 2;
+
         this.initGame();
     }
 
@@ -56,8 +58,12 @@ export default class Game extends Phaser.Scene
         await this.loadMines();
         await this.newGame();
 
-        new ShopForm(this, this.scale.width / 8, this.scale.height / 8);                
+        this.openShop();
     }
+
+    openShop() {
+        this.shop = new ShopForm(this, this.scale.width / 4, this.scale.height / 8);                
+    }    
 
     async loadDevice(name) {
         this.devices.push({
@@ -76,20 +82,20 @@ export default class Game extends Phaser.Scene
     async loadDevices () {
         await this.loadDevice('scannerModifierRange');
         await this.loadDevice('scannerModifierPower');
-        await this.loadDevice('pointsModifier');
-        await this.loadDevice('pointsMultiplier');
-        await this.loadDevice('pointsModifierOnlySmall');
-        await this.loadDevice('pointsModifierOnlyMedium');
-        await this.loadDevice('pointsModifierOnlyBig');
-        await this.loadDevice('pointsMultiplierOnlySmall');
-        await this.loadDevice('pointsMultiplierOnlyMedium');
-        await this.loadDevice('pointsMultiplierOnlyBig');
-        await this.loadDevice('pointsModifierDiscSmall');
-        await this.loadDevice('pointsModifierDiscMedium');
-        await this.loadDevice('pointsModifierDiscBig');
-        await this.loadDevice('pointsMultiplierDiscSmall');
-        await this.loadDevice('pointsMultiplierDiscMedium');
-        await this.loadDevice('pointsMultiplierDiscBig');
+        // await this.loadDevice('pointsModifier');
+        // await this.loadDevice('pointsMultiplier');
+        // await this.loadDevice('pointsModifierOnlySmall');
+        // await this.loadDevice('pointsModifierOnlyMedium');
+        // await this.loadDevice('pointsModifierOnlyBig');
+        // await this.loadDevice('pointsMultiplierOnlySmall');
+        // await this.loadDevice('pointsMultiplierOnlyMedium');
+        // await this.loadDevice('pointsMultiplierOnlyBig');
+        // await this.loadDevice('pointsModifierDiscSmall');
+        // await this.loadDevice('pointsModifierDiscMedium');
+        // await this.loadDevice('pointsModifierDiscBig');
+        // await this.loadDevice('pointsMultiplierDiscSmall');
+        // await this.loadDevice('pointsMultiplierDiscMedium');
+        // await this.loadDevice('pointsMultiplierDiscBig');
     }
 
     async loadMines () {
@@ -99,7 +105,7 @@ export default class Game extends Phaser.Scene
 
     async newGame(){
         this.level = 1;
-        this.cash = 0;
+        this.cash = 10;
 
         this.devicesInPlay = [];
 
@@ -112,9 +118,26 @@ export default class Game extends Phaser.Scene
     addDevice(name) {
         const device = this.devices.find(device => device.name === name);
         if (device && this.devicesInPlay.length < 5) {
-            const dev = new device.class(this, this.devicesInPlay.length);
-            this.devicesInPlay.push(dev);
+            this.devicesInPlay.push(device);
+            this.renderDevicesInPlay();
         }
+    }
+
+    renderDevicesInPlay() {
+        const w = this.columnWidth * 2 * 0.95;
+        const h = this.scale.height * 0.85 / 5;
+        const x = this.columnWidth - w / 2;
+        const space = this.scale.height * 0.012;
+
+        if(this.devicesContainer) this.devicesContainer.destroy();
+        
+        this.devicesContainer = this.add.container(x, space);
+
+        this.devicesInPlay.forEach((device, index) => {
+            const deviceInst = new device.class(this, 0, index * (h + space), w, h);
+            const deviceContainer = deviceInst.render();
+            this.devicesContainer.add(deviceContainer);
+        });
     }
 
     initBoard() {
