@@ -22,13 +22,18 @@ export default class Device {
         this.container = this.scene.add.container(this.x, this.y);
 
         this.container.add(this.rect = this.scene.add.rectangle(0, 0, this.w, this.h, 0xdddddd).setOrigin(0).setStrokeStyle(4, 0x000000));
-        this.container.add(this.scene.add.text(this.w / 2, this.h / 2, this.desc, { ...Style.bla4,
-            wordWrap: { width: this.w * 0.8 },
+
+        const fontStyle = { ...Style.bla4,
+            fontSize: Math.floor(this.h * 0.14),
+            lineSpacing: Math.floor(this.h * 0.04),
+            wordWrap: { width: this.w * 0.9 },
             align: 'center'
-        }).setOrigin(0.5));
+        };
+
+        this.container.add(this.scene.add.text(this.w / 2, this.h * (0.4 + (basePrice === 0 ? 0.1 : 0)), this.desc, fontStyle).setOrigin(0.5));
 
         if(basePrice > 0){
-            this.container.add(this.scene.add.text(this.w / 2, this.h * 0.9, `${basePrice * this.priceTier}$`, Style.bla4b).setOrigin(0.5, 1));
+            this.container.add(this.scene.add.text(this.w / 2, this.h * 0.92, `${basePrice * this.priceTier}$`, Style.bla4b).setOrigin(0.5, 1));
         }
 
         return this.container;

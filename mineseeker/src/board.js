@@ -118,7 +118,7 @@ export default class Board
 
     playDevices() {
         this.game.devicesInPlay.forEach(device => {
-            device.play(this);
+            device.inst.play(this);
         });
     }
 
@@ -236,6 +236,11 @@ export default class Board
     destroy(){
         this.container.destroy();
         this.legendContainer.destroy();
+        this.data.forEach(column => {
+            column.forEach(cell => {
+                cell.destroy();
+            });
+        });
     }
 
     checkWinLooseConditions ()

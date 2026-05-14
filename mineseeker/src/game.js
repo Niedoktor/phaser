@@ -82,20 +82,20 @@ export default class Game extends Phaser.Scene
     async loadDevices () {
         await this.loadDevice('scannerModifierRange');
         await this.loadDevice('scannerModifierPower');
-        // await this.loadDevice('pointsModifier');
-        // await this.loadDevice('pointsMultiplier');
-        // await this.loadDevice('pointsModifierOnlySmall');
-        // await this.loadDevice('pointsModifierOnlyMedium');
-        // await this.loadDevice('pointsModifierOnlyBig');
-        // await this.loadDevice('pointsMultiplierOnlySmall');
-        // await this.loadDevice('pointsMultiplierOnlyMedium');
-        // await this.loadDevice('pointsMultiplierOnlyBig');
-        // await this.loadDevice('pointsModifierDiscSmall');
-        // await this.loadDevice('pointsModifierDiscMedium');
-        // await this.loadDevice('pointsModifierDiscBig');
-        // await this.loadDevice('pointsMultiplierDiscSmall');
-        // await this.loadDevice('pointsMultiplierDiscMedium');
-        // await this.loadDevice('pointsMultiplierDiscBig');
+        await this.loadDevice('pointsModifier');
+        await this.loadDevice('pointsMultiplier');
+        await this.loadDevice('pointsModifierOnlySmall');
+        await this.loadDevice('pointsModifierOnlyMedium');
+        await this.loadDevice('pointsModifierOnlyBig');
+        await this.loadDevice('pointsMultiplierOnlySmall');
+        await this.loadDevice('pointsMultiplierOnlyMedium');
+        await this.loadDevice('pointsMultiplierOnlyBig');
+        await this.loadDevice('pointsModifierDiscSmall');
+        await this.loadDevice('pointsModifierDiscMedium');
+        await this.loadDevice('pointsModifierDiscBig');
+        await this.loadDevice('pointsMultiplierDiscSmall');
+        await this.loadDevice('pointsMultiplierDiscMedium');
+        await this.loadDevice('pointsMultiplierDiscBig');
     }
 
     async loadMines () {
@@ -129,13 +129,17 @@ export default class Game extends Phaser.Scene
         const x = this.columnWidth - w / 2;
         const space = this.scale.height * 0.012;
 
-        if(this.devicesContainer) this.devicesContainer.destroy();
-        
+        if(this.devicesContainer){
+            //this.devicesContainer.children.each(child => child.destroy());
+            this.devicesContainer.destroy();
+            this.devicesContainer = null;
+        }
+
         this.devicesContainer = this.add.container(x, space);
 
         this.devicesInPlay.forEach((device, index) => {
-            const deviceInst = new device.class(this, 0, index * (h + space), w, h);
-            const deviceContainer = deviceInst.render();
+            device.inst = new device.class(this, 0, index * (h + space), w, h);
+            const deviceContainer = device.inst.render();
             this.devicesContainer.add(deviceContainer);
         });
     }

@@ -34,11 +34,12 @@ export default class WinForm
 
         this.shopButton.setInteractive();
         this.shopButton.on('pointerdown', () => {
-            board.game.level++;
-            board.game.cash += board.reward + board.minesCounter;
+            this.board.game.level++;
+            this.board.game.cash += this.board.reward + this.board.minesCounter;
+            this.board.game.openShop();
 
             form.destroy();
-            board.game.openShop();
+            delete this;
         });
         this.shopButton.on('pointerover', () => {
             this.shopButton.setStyle(Style.red7);

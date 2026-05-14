@@ -1,8 +1,9 @@
 import Device from "../device.js";
 
 export default class PointsMultiplierDiscMedium extends Device {
-    constructor(game, index) {
-        super(game, index);
+    constructor(game, x, y, w, h) {
+        super(game, x, y, w, h);
+        this.priceTier = 1;
         this.desc = "Points Multiplier +3 for medium mines. Rest mines will give -1 points modifier.";
     }
 

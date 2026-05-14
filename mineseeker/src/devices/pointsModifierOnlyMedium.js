@@ -1,8 +1,9 @@
 import Device from "../device.js";
 
 export default class PointsModifierOnlyMedium extends Device {
-    constructor(game, index) {
-        super(game, index);
+    constructor(game, x, y, w, h) {
+        super(game, x, y, w, h);
+        this.priceTier = 3;
         this.desc = "Points Modifier +3 if medium mines left only";
     }
 

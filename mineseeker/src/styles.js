@@ -7,7 +7,7 @@ const Style = {
     bla7: { font: `7vh LEDCalculator`, fill: '#000' },
     red7: { font: `7vh LEDCalculator`, fill: '#f00' },
     gra7: { font: `7vh LEDCalculator`, fill: '#aaa' },
-    bla4: { font: `4vh LEDCalculator`, fill: '#000' },
+    bla4: { fontFamily: `LEDCalculator`, fontSize: `4vh`, fill: '#000' },
     bla4b: { font: `bold 4vh LEDCalculator`, fill: '#000' },
 }
 

@@ -121,4 +121,11 @@ export default class Mine
             });            
         }, 1000);
     }
+
+    destroy()
+    {
+        if(this.forcePointContainer) this.forcePointContainer.destroy();
+        if(this.label) this.label.destroy();
+        if(this.mine) this.mine.destroy();
+    }
 }

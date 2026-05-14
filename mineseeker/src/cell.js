@@ -156,4 +156,11 @@ export class Cell
 
         this.open = true;
     }
+
+    destroy()
+    {
+        this.tile.destroy();
+        if(this.mineLegend) this.mineLegend.destroy();
+        if(this.mine) this.mine.destroy();
+    }
 }

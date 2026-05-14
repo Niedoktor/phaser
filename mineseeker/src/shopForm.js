@@ -22,23 +22,25 @@ export default class ShopForm
 
         form.add(this.scene.add.text(w / 2, form.last.y + lineSpace, `Devices`, Style.bla7).setOrigin(0.5));
 
-        form.add(this.devicesContainer = this.scene.add.container(lineSpace, form.last.y + lineSpace));
+        form.add(this.devicesContainer = this.scene.add.container(lineSpace / 2, form.last.y + lineSpace));
         
-        this.devicesContainer.add(this.scene.add.rectangle(0, 0, w - lineSpace * 2, lineSpace * 2, 0xffffff).setOrigin(0).setStrokeStyle(4, 0x000000));
+        this.devicesContainer.add(this.scene.add.rectangle(0, 0, w - lineSpace, lineSpace * 2, 0xffffff).setOrigin(0).setStrokeStyle(4, 0x000000));
 
         form.add(this.nextLevelButton = this.scene.add.text(w / 2, h - lineSpace / 2, 'Next Level', Style.bla7).setOrigin(0.5, 1));
 
         const devices = [];
-        while(devices.length < this.game.shopDevicesCount){
+        while(devices.length < this.game.shopDevicesCount && devices.length + this.game.devicesInPlay.length < this.game.devices.length){
             const device = this.game.devices[Math.floor(Math.random() * this.game.devices.length)];
-            if(!devices.includes(device)){
+            if(!devices.includes(device) && !this.game.devicesInPlay.includes(device)){
                 devices.push(device);
             }
         }
 
+        const dx = (w - lineSpace - (lineSpace * 3.6 * devices.length + lineSpace * 0.1 * (devices.length - 1))) / 2;
+
         const basePrice = 1;
         for(let i = 0; i < devices.length; i++) {
-            const device = new devices[i].class(this.game, lineSpace * 0.1 + i * (lineSpace * 3.7), lineSpace * 0.1, lineSpace * 3.6, lineSpace * 1.8);
+            const device = new devices[i].class(this.game, dx + i * (lineSpace * 3.7), lineSpace * 0.1, lineSpace * 3.6, lineSpace * 1.8);
             const deviceContainer = device.render(basePrice);
             this.devicesContainer.add(deviceContainer);
             
@@ -47,7 +49,6 @@ export default class ShopForm
                 if(this.game.devicesInPlay.length < 5 && this.game.cash >= device.priceTier * basePrice){
                     this.game.cash -= device.priceTier * basePrice;
                     this.game.addDevice(devices[i].name);
-                    this.devicesContainer.remove(deviceContainer);
                     deviceContainer.destroy();
                 }
             });
