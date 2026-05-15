@@ -8,6 +8,8 @@ export default class PointsModifier extends Device {
     }
 
     use(board) {
-        board.currentPointsModifier = board.currentPointsModifier.map(mod => mod + 1);
+        for(let i = 0; i < board.currentPointsModifier.length; i++) {
+            board.currentPointsModifier[i] += 1;
+        }
     }
 }

@@ -4,7 +4,7 @@ export default class PointsMultiplierDiscBig extends Device {
     constructor(game, x, y, w, h) {
         super(game, x, y, w, h);
         this.priceTier = 1;
-        this.desc = "Points Multiplier +3 for big mines. Rest mines will give -1 points modifier.";
+        this.desc = "Points Multiplier +3 for big mines. Rest mines will give -1 points multiplier.";
     }
 
     use(board){

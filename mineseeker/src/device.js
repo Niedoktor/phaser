@@ -15,7 +15,6 @@ export default class Device {
     }
 
     play(board){
-        this.render();
     }
 
     render(basePrice = 0){

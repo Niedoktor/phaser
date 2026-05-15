@@ -122,8 +122,8 @@ export class Cell
             this.board.currentPointsModifier = Phaser.Utils.Objects.Clone(this.board.pointsModifier);
             this.board.currentPointsMultiplier = Phaser.Utils.Objects.Clone(this.board.pointsMultiplier);
             this.board.game.devicesInPlay.forEach(device => {
-                if(device.use){
-                    device.use();
+                if(device.inst.use){
+                    device.inst.use(this.board);
                 }
             });
             this.cellBlowUp(this.mine);

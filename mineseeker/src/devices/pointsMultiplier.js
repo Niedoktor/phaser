@@ -8,6 +8,8 @@ export default class PointsMultiplier extends Device {
     }
 
     use(board){
-        board.currentPointsMultiplier = board.currentPointsMultiplier.map(multiplier => multiplier + 1);
+        for(let i = 0; i < board.currentPointsMultiplier.length; i++) {
+            board.currentPointsMultiplier[i] += 1;
+        }
     }
 }

@@ -58,7 +58,7 @@ export default class Game extends Phaser.Scene
         await this.loadMines();
         await this.newGame();
 
-        this.openShop();
+        //this.openShop();
     }
 
     openShop() {
@@ -105,7 +105,7 @@ export default class Game extends Phaser.Scene
 
     async newGame(){
         this.level = 1;
-        this.cash = 10;
+        this.cash = 0;
 
         this.devicesInPlay = [];
 
