@@ -141,9 +141,7 @@ export default class Board
 
     async generate (startIndex)
     {
-        //const mines = this.generateThreeMines(startIndex);
-        this.minedCells = this.generateRandomMines(startIndex);
-
+        this.minedCells = this.generateMines(startIndex);
         this.minedCells.sort((a, b) => { return b.mineSize - a.mineSize; });
 
         const w = this.sceneW / (this.minesQty + 1);
@@ -229,6 +227,10 @@ export default class Board
                 this.floodFill(x, y + 1);
                 this.floodFill(x - 1, y);
                 this.floodFill(x + 1, y);
+                this.floodFill(x - 1, y - 1);
+                this.floodFill(x - 1, y + 1);
+                this.floodFill(x + 1, y - 1);
+                this.floodFill(x + 1, y + 1);
             }
         }
     }
@@ -255,51 +257,31 @@ export default class Board
         }
     }
 
-    generateRandomMines (startIndex, sizeDistribution = [1.0 / 3, 1.0 / 3, 1.0 / 3])
+    generateMines (startIndex)
     {
         const mines = [];
-        sizeDistribution = sizeDistribution.map((val, index) => { return this.minesQty * val; });
+        const minesInPlay = this.game.minesInPlay.map(m => { return m; } );
 
         let minesPlaced = 0;
-        do {
+        while(minesPlaced < this.minesQty) {
             const location = Phaser.Math.Between(0, this.size - 1);
             const cell = this.getCell(location);
 
             if (!cell.mineSize && cell.index !== startIndex)
             {
-                do {
-                    const p = Phaser.Math.Between(0, sizeDistribution.length - 1);
-                    if(sizeDistribution[p] > 0) {
-                        cell.mineSize = p + 1;
-                        cell.mineClass = this.game.mines[0].class;
-                        cell.mineClass.setMineParams(cell);
-                        sizeDistribution[p]--;
-                    }
-                } while (!cell.mineSize);
+                const p = Phaser.Math.Between(0, Object.keys(minesInPlay).length - 1);
+                const m = minesInPlay[p];
+
+                cell.mineSize = m.size;
+                cell.mineClass = m.class;
+                cell.mineClass.setMineParams(cell);
 
                 minesPlaced++;
-
                 mines.push(cell);
+
+                minesInPlay.splice(p, 1);
             }
-
-        } while (minesPlaced < this.minesQty);
-
-        return mines;
-    }
-
-    generateThreeMines (startIndex)
-    {
-        const mines = [];
-
-        let cell = this.getCellXY(3, 4);
-        cell.mineSize = 1;
-        mines.push(cell);
-        cell = this.getCellXY(5, 4);
-        cell.mineSize = 3;
-        mines.push(cell);
-        cell = this.getCellXY(7, 4);
-        cell.mineSize = 2;
-        mines.push(cell);
+        };
 
         return mines;
     }

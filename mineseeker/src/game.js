@@ -38,6 +38,7 @@ export default class Game extends Phaser.Scene
 
         this.devices = [];
         this.mines = [];
+        this.boosters = [];
 
         this.columnWidth = Math.floor(this.scale.width / 8);
 
@@ -56,9 +57,10 @@ export default class Game extends Phaser.Scene
 
         await this.loadDevices();
         await this.loadMines();
+        await this.loadBoosters();
         await this.newGame();
 
-        //this.openShop();
+        this.openShop();
     }
 
     openShop() {
@@ -77,6 +79,18 @@ export default class Game extends Phaser.Scene
             name: name,
             class: (await import(`./mines/${name}.js`)).default
         });
+    }
+
+    async loadBooster(name) {
+        this.boosters.push({
+            name: name,
+            class: (await import(`./boosters/${name}.js`)).default
+        });
+    }
+
+    async loadBoosters() {
+        await this.loadBooster('deviceBooster');
+        await this.loadBooster('mineBooster');
     }
 
     async loadDevices () {
@@ -103,7 +117,7 @@ export default class Game extends Phaser.Scene
         await this.loadMine('fragMineDir');
     }
 
-    async newGame(){
+    async newGame (){
         this.level = 1;
         this.cash = 0;
 
@@ -112,7 +126,33 @@ export default class Game extends Phaser.Scene
         // this.addDevice('scannerModifierRange');
         // this.addDevice('scannerModifierPower');
 
+        this.initStartingMines(12);
         this.initBoard();
+    }
+
+    initStartingMines (mineCount) {
+        this.minesInPlay = this.generateEvenMines(mineCount);        
+    }
+
+    generateEvenMines (mineCount){
+        const mines = [];
+        const sizeDistribution = [];
+
+        this.mines.forEach(mine => {
+            sizeDistribution.push([mineCount / 3 / this.mines.length, mineCount / 3 / this.mines.length, mineCount / 3 / this.mines.length]);
+        });
+
+        while(mines.length < mineCount){
+            const s = Phaser.Math.Between(0, 2);
+            const m = Phaser.Math.Between(0, this.mines.length - 1);
+            if(sizeDistribution[m][s] >= 1) {
+                mines.push( { class: this.mines[m].class, size: s + 1, classIndex: m } );
+                sizeDistribution[m][s]--;
+            }
+        }
+        mines.sort((a, b) => { return a.classIndex + b.size * 10 - b.classIndex - a.size * 10; });
+
+        return mines;
     }
 
     addDevice(name) {
@@ -130,7 +170,6 @@ export default class Game extends Phaser.Scene
         const space = this.scale.height * 0.012;
 
         if(this.devicesContainer){
-            //this.devicesContainer.children.each(child => child.destroy());
             this.devicesContainer.destroy();
             this.devicesContainer = null;
         }
