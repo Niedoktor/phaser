@@ -119,7 +119,7 @@ export default class Game extends Phaser.Scene
 
     async newGame (){
         this.level = 1;
-        this.cash = 0;
+        this.cash = 10;
 
         this.devicesInPlay = [];
 

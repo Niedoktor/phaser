@@ -8,7 +8,7 @@ export default class FragMine extends Mine {
 
         super(cell, x, y, size, fragSize, size * 0.16, { x: 0.5, y: 0.5 });
 
-        this.radius = cell.mineParams.radius;
+        this.radius = cell.mineParams.radius * cell.size;
 
         this.init();
     }
@@ -35,17 +35,20 @@ export default class FragMine extends Mine {
         circle.destroy();
     }
 
-    static setMineParams(cell) {
-        cell.mineParams = {
-            radius: cell.size * (0.1 + cell.mineSize * 0.1)
+    static setMineParams(size) {
+        return {
+            radius: 0.1 + size * 0.1
         }
     }
 
-    static legend(cell, x, y, index){
-        const w = cell.size / 2;
-        const r = cell.size * (0.05 + cell.mineSize * 0.05);
+    static isTheSameParams(params1, params2) {
+        return params1.radius === params2.radius;
+    }
 
-        return cell.mineLegend = cell.scene.add.circle(x, y, r, 0x000000);
+    static legend(scene, parentSize, x, y, mineSize, mineParams){
+        const r = parentSize * (0.05 + mineSize * 0.05);
+
+        return scene.add.circle(x, y, r, 0x000000);
     }
 
     blowUp (completeCallback) {

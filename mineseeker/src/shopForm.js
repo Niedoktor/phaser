@@ -77,7 +77,9 @@ export default class ShopForm
             booster.rect.on('pointerdown', () => {
                 if(this.game.cash >= booster.priceTier * basePrice){
                     this.game.cash -= booster.priceTier * basePrice;
-                    boosters[i].open();
+                    form.postFX.addBlur(2);
+                    this.nextLevelButton.disableInteractive();
+                    booster.open();
                     boosterContainer.destroy();
                 }
             });

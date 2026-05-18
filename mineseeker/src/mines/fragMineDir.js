@@ -8,7 +8,7 @@ export default class FragMineDir extends Mine {
 
         super(cell, x, y, size, fragSize, size * 0.32);
 
-        this.radius = cell.mineParams.radius;
+        this.radius = cell.mineParams.radius * cell.size;
         this.angle = cell.mineParams.angle;
 
         switch(this.angle) {
@@ -57,18 +57,21 @@ export default class FragMineDir extends Mine {
         arc.destroy();
     }
 
-    static setMineParams(cell) {
-        cell.mineParams = {
-            radius: cell.size * (0.1 + cell.mineSize * 0.1),
+    static setMineParams(size) {
+        return {
+            radius: 0.1 + size * 0.1,
             angle: Phaser.Math.Between(0, 3) * 90
         }
     }
 
-    static legend(cell, x, y, index){
-        const w = cell.size / 2;
-        const r = cell.size * (0.05 + cell.mineSize * 0.05);
+    static isTheSameParams(params1, params2) {
+        return params1.radius === params2.radius && params1.angle === params2.angle;
+    }
 
-        return cell.mineLegend = cell.scene.add.arc(x, y, r, cell.mineParams.angle, cell.mineParams.angle + 180, false, 0x000000);
+    static legend(scene, parentSize, x, y, mineSize, mineParams){
+        const r = parentSize * (0.05 + mineSize * 0.05);
+
+        return scene.add.arc(x, y, r, mineParams.angle, mineParams.angle + 180, false, 0x000000);
     }
 
     blowUp (completeCallback) {

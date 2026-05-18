@@ -14,7 +14,7 @@ export default class Booster {
         this.h = h;
     }
 
-    play(){
+    open(){
     }
 
     render(basePrice = 0){

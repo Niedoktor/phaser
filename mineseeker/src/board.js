@@ -151,7 +151,9 @@ export default class Board
             const x = i * w
 
             this.legendContainer.add(this.scene.add.rectangle(x, 0, w, w, 0xdddddd).setStrokeStyle(4, 0x000000).setOrigin(0.5, 0));
-            this.legendContainer.add(cell.mineClass.legend(cell, x, w / 2, i++));
+
+            cell.mineLegend = cell.mineClass.legend(this.scene, w, x, w / 2, cell.mineSize, cell.mineParams);
+            this.legendContainer.add(cell.mineLegend);
 
             //  Update the 8 cells around this bomb cell
             const adjacent = this.getAdjacentCells(cell);
@@ -274,7 +276,7 @@ export default class Board
 
                 cell.mineSize = m.size;
                 cell.mineClass = m.class;
-                cell.mineClass.setMineParams(cell);
+                cell.mineParams = cell.mineClass.setMineParams(m.size);
 
                 minesPlaced++;
                 mines.push(cell);
