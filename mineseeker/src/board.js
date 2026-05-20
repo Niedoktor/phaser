@@ -148,7 +148,7 @@ export default class Board
 
         let i = 0;
         this.minedCells.forEach(cell => {
-            const x = i * w
+            const x = i++ * w;
 
             this.legendContainer.add(this.scene.add.rectangle(x, 0, w, w, 0xdddddd).setStrokeStyle(4, 0x000000).setOrigin(0.5, 0));
 

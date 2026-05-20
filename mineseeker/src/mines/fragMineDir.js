@@ -71,6 +71,11 @@ export default class FragMineDir extends Mine {
     static legend(scene, parentSize, x, y, mineSize, mineParams){
         const r = parentSize * (0.05 + mineSize * 0.05);
 
+        if(!mineParams) {
+            mineParams = this.setMineParams(mineSize);
+            mineParams.angle = 180;
+        }
+        
         return scene.add.arc(x, y, r, mineParams.angle, mineParams.angle + 180, false, 0x000000);
     }
 

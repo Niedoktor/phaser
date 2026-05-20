@@ -131,7 +131,8 @@ export default class Game extends Phaser.Scene
     }
 
     initStartingMines (mineCount) {
-        this.minesInPlay = this.generateEvenMines(mineCount);        
+        this.minesInPlay = this.generateEvenMines(mineCount);
+        this.infoPanel.minesInfo();
     }
 
     generateEvenMines (mineCount){
@@ -161,6 +162,11 @@ export default class Game extends Phaser.Scene
             this.devicesInPlay.push(device);
             this.renderDevicesInPlay();
         }
+    }
+
+    addMine(mine) {
+        this.minesInPlay.push(mine);
+        this.infoPanel.minesInfo();
     }
 
     renderDevicesInPlay() {

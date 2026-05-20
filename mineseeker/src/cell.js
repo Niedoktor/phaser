@@ -119,8 +119,8 @@ export class Cell
                 this.scan();
             }
             this.board.sequence = 1;
-            this.board.currentPointsModifier = Phaser.Utils.Objects.Clone(this.board.pointsModifier);
-            this.board.currentPointsMultiplier = Phaser.Utils.Objects.Clone(this.board.pointsMultiplier);
+            this.board.currentPointsModifier = Phaser.Utils.Objects.DeepCopy(this.board.pointsModifier);
+            this.board.currentPointsMultiplier = Phaser.Utils.Objects.DeepCopy(this.board.pointsMultiplier);
             this.board.game.devicesInPlay.forEach(device => {
                 if(device.inst.use){
                     device.inst.use(this.board);
