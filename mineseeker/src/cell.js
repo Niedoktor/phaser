@@ -31,7 +31,20 @@ export class Cell
         this.tile.setInteractive();
 
         this.tile.on('pointerdown', this.onPointerDown, this);
-        //this.tile.on('pointerup', this.onPointerUp, this);
+        this.tile.on('pointerover', this.onPointerOver, this);
+        this.tile.on('pointerout', this.onPointerOut, this);
+    }
+
+    onPointerOver (pointer){
+        if(this.board.playing && !this.exploded&& this.mine && this.mine.mine) {
+            this.mine.drawRange();
+        }
+    }
+
+    onPointerOut (pointer){
+        if(this.board.playing && this.mine && this.mine.rangeArea) {
+            this.mine.rangeArea.destroy();
+        }
     }
 
     async onPointerDown (pointer)
@@ -107,6 +120,10 @@ export class Cell
             this.mineLegend.setAlpha(0.5);
             this.board.legendContainer.add(this.mineLegendX);
         }
+
+        if(this.mine.rangeArea) {
+            this.mine.rangeArea.destroy();
+        }        
     }
 
     onClick ()

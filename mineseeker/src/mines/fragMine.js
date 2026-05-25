@@ -57,4 +57,10 @@ export default class FragMine extends Mine {
         this.mine.destroy();
         this.mine = null;
     }
+
+    drawRange () {
+        if(this.rangeArea) this.rangeArea.destroy();
+
+        this.rangeArea = this.scene.add.circle(this.x, this.y, this.cell.size * this.size, 0xff0000, 0.2);
+    }
 }

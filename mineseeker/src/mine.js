@@ -126,6 +126,10 @@ export default class Mine
     {
         if(this.forcePointContainer) this.forcePointContainer.destroy();
         if(this.label) this.label.destroy();
-        if(this.mine) this.mine.destroy();
+        if(this.rangeArea) this.rangeArea.destroy();
+        if(this.mine){
+            this.mine.destroy();
+            this.mine = undefined;
+        }
     }
 }

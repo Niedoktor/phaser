@@ -60,7 +60,7 @@ export default class Game extends Phaser.Scene
         await this.loadBoosters();
         await this.newGame();
 
-        this.openShop();
+        //this.openShop();
     }
 
     openShop() {
