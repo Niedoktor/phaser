@@ -103,8 +103,13 @@ export class Cell
 
     cellBlowUp (mine)
     {
-        this.exploded = true;        
-        this.board.pointsCounter += (mine.size + this.board.currentPointsModifier[mine.size - 1]) * this.board.sequence * this.board.currentPointsMultiplier[mine.size - 1];
+        this.exploded = true;
+
+        mine.pointsModifier = this.board.pointsModifier[mine.size - 1];
+        mine.pointsMultiplier = this.board.pointsMultiplier[mine.size - 1] * this.board.sequence;
+
+        this.board.pointsCounter += (mine.size + mine.pointsModifier) * mine.pointsMultiplier;
+
         this.board.sequence++;
         this.board.minesCounter--;
         mine.blowUp(() => {

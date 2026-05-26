@@ -33,7 +33,7 @@ export default class Game extends Phaser.Scene
         this.matter.world.engine.timing.timeScale = 0.25;
         this.tweens.timeScale = 0.25;
 
-        this.firstLevelScore = 10;
+        this.firstLevelScore = 20;
         this.firstLevelReward = 3;
 
         this.devices = [];

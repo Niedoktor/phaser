@@ -108,24 +108,35 @@ export default class Mine
                     );
                 }
             }
-        }        
+        }
 
-        setTimeout(() => {
-            this.label = this.scene.add.text(this.x, this.y, 'X', Style.red12).setOrigin(0.5).setAlpha(0);
+        this.label = this.scene.add.text(this.x, this.y, 'X', Style.red12).setOrigin(0.5).setScale(2);
+        this.scoreLabel = this.scene.add.text(this.x, this.y, `${this.size + this.pointsModifier}  ${this.pointsMultiplier}`, Style.dre4b).setScale(3).setOrigin(0.5);
 
-            this.scene.tweens.add({
-                targets: this.label,
-                alpha: 1,
-                duration: 500,
-                ease: 'Linear'
-            });            
-        }, 1000);
+        this.scene.tweens.add({
+            targets: [ this.label, this.scoreLabel ],
+            scale: 1,
+            duration: 250,
+            ease: 'Sine.In'
+        });
+
+        // setTimeout(() => {
+        //     this.label = this.scene.add.text(this.x, this.y, 'X', Style.red14).setOrigin(0.5).setAlpha(0);
+
+        //     this.scene.tweens.add({
+        //         targets: this.label,
+        //         alpha: 1,
+        //         duration: 500,
+        //         ease: 'Linear'
+        //     });            
+        // }, 1000);
     }
 
     destroy()
     {
         if(this.forcePointContainer) this.forcePointContainer.destroy();
         if(this.label) this.label.destroy();
+        if(this.scoreLabel) this.scoreLabel.destroy();
         if(this.rangeArea) this.rangeArea.destroy();
         if(this.mine){
             this.mine.destroy();
