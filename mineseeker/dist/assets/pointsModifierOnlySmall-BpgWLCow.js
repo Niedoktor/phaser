@@ -1,0 +1,1 @@
+import{D as r}from"./device-C8ZpZslZ.js";import"./index-KM57dzhR.js";class d extends r{constructor(e,i,s,t,o){super(e,i,s,t,o),this.priceTier=3,this.desc="Points Modifier +4 if small mines left only"}use(e){e.minedCells.filter(i=>i.bomb>1&&!i.exploded).length===0&&(e.currentPointsModifier[0]+=4)}}export{d as default};
