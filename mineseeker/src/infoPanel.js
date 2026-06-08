@@ -18,29 +18,37 @@ export default class InfoPanel
 
         this.info.add(this.scene.add.rectangle(0, 0, w, h, 0xdddddd).setOrigin(0).setStrokeStyle(4, 0x000000));
 
-        this.info.add(this.game.levelDisplay = this.scene.add.text(w / 2, this.lineSpace, ``, Style.bla7).setOrigin(0.5, 0));
+        this.info.add(this.levelDisplay = this.scene.add.text(w / 2, this.lineSpace, ``, Style.bla7).setOrigin(0.5, 0));
+        this.levelDisplay.textTemplate = 'Level {val}';
 
         this.info.add(this.scene.add.text(w / 2, this.info.last.y + this.lineSpace * 2, `Score to next level`, Style.bla4).setOrigin(0.5, 0));
 
-        this.info.add(this.game.scoreTargetDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace * 0.6, ``, Style.bla7).setOrigin(0.5, 0));
+        this.info.add(this.scoreTargetDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace * 0.6, ``, Style.bla7).setOrigin(0.5, 0));
+        this.scoreTargetDisplay.textTemplate = '{val}';
         
-        this.info.add(this.game.rewardDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace * 2, ``, Style.bla7).setOrigin(0.5, 0));
+        this.info.add(this.rewardDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace * 2, ``, Style.bla7).setOrigin(0.5, 0));
+        this.rewardDisplay.textTemplate = 'Reward {val}$';
 
         this.info.add(this.scene.add.line(w / 2, this.info.last.y + this.lineSpace * 2, 0, 0, w, 0, 0x000000).setOrigin(0.5));
 
-        this.info.add(this.game.pointsCounterDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace, ``, Style.bla7).setOrigin(0.5, 0));
+        this.info.add(this.pointsCounterDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace, ``, Style.bla7).setOrigin(0.5, 0));
+        this.pointsCounterDisplay.textTemplate = 'Score {val}';
 
         this.info.add(this.scene.add.line(w / 2, this.info.last.y + this.lineSpace * 2, 0, 0, w, 0, 0x000000).setOrigin(0.5));
 
-        this.info.add(this.game.minesCounterDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace, ``, Style.bla7).setOrigin(0.5, 0));
-        
-        this.info.add(this.game.scansCounterDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace * 2, ``, Style.bla7).setOrigin(0.5, 0));
+        this.info.add(this.minesCounterDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace, ``, Style.bla7).setOrigin(0.5, 0));
+        this.minesCounterDisplay.textTemplate = 'Mines {val}';
+
+        this.info.add(this.scansCounterDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace * 2, ``, Style.bla7).setOrigin(0.5, 0));
+        this.scansCounterDisplay.textTemplate = 'Scans {val}';
 
         this.info.add(this.scene.add.line(w / 2, this.info.last.y + this.lineSpace * 2, 0, 0, w, 0, 0x000000).setOrigin(0.5));
 
-        this.info.add(this.game.cashDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace, ``, Style.bla7).setOrigin(0.5, 0));
+        this.info.add(this.cashDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace, ``, Style.bla7).setOrigin(0.5, 0));
+        this.cashDisplay.textTemplate = 'Cash {val}$';
 
-        this.info.add(this.game.timeCounterDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace * 2, ``, Style.bla7).setOrigin(0.5, 0));
+        this.info.add(this.timeCounterDisplay = this.scene.add.text(w / 2, this.info.last.y + this.lineSpace * 2, ``, Style.bla7).setOrigin(0.5, 0));
+        this.timeCounterDisplay.textTemplate = 'Time {val}';
         
         this.info.add(this.scene.add.line(w / 2, this.info.last.y + this.lineSpace * 2, 0, 0, w, 0, 0x000000).setOrigin(0.5));
     }
@@ -69,5 +77,10 @@ export default class InfoPanel
             const legend = mine.class.legend(this.scene, s, this.lineSpace * 0.1 + x + s / 2, this.lineSpace * 0.1 + y + s / 2, mine.size);
             this.mines.add(legend);
         });
+    }
+
+    static create(game, x, y, w, h) {
+        InfoPanel.instance = new InfoPanel(game, x, y, w, h);
+        return InfoPanel.instance;
     }
 }

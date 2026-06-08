@@ -2,33 +2,17 @@ import Phaser from 'phaser';
 import Board from './board';
 import InfoPanel from './infoPanel';
 import ShopForm from './shopForm';
+import PropertyArray from './propertyArray';
+import { importDevice, importBooster, importMine } from './modules';
+import property from './property';
 
 export default class Game extends Phaser.Scene
 {   
-    #level;
-    #cash;
-
     constructor() {
         super('Game');
     }
 
-    set level(val){
-        this.#level = val;
-        this.levelDisplay.setText(`Level ${this.#level}`);
-    }
-    get level(){
-        return this.#level;
-    }
-
-    set cash(val){
-        this.#cash = val;
-        this.cashDisplay.setText(`Cash ${this.#cash}$`);
-    }
-    get cash(){
-        return this.#cash;
-    }
-
-    create() {
+    create(data) {
         this.input.mouse.disableContextMenu();
         this.matter.world.engine.timing.timeScale = 0.25;
         this.tweens.timeScale = 0.25;
@@ -53,38 +37,50 @@ export default class Game extends Phaser.Scene
         const panelX = this.scale.width - this.columnWidth - panelWidth / 2;
         const panelY = this.scale.height * 0.01;
         
-        this.infoPanel = new InfoPanel(this, panelX, panelY, panelWidth, panelHeight);
+        this.infoPanel = InfoPanel.create(this, panelX, panelY, panelWidth, panelHeight);
 
         await this.loadDevices();
         await this.loadMines();
         await this.loadBoosters();
-        await this.newGame();
+
+        property(this, 'level', 'game.level', (val) => {
+            this.infoPanel.levelDisplay.setText(this.infoPanel.levelDisplay.textTemplate.replace('{val}', val));
+        });
+        property(this, 'cash', 'game.cash', (val) => {
+            this.infoPanel.cashDisplay.setText(this.infoPanel.cashDisplay.textTemplate.replace('{val}', val));
+        });
+
+        if(this.level !== undefined) {
+            await this.continueGame();
+        }else{
+            await this.newGame();
+        }
 
         //this.openShop();
     }
 
     openShop() {
         this.shop = new ShopForm(this, this.scale.width / 4, this.scale.height / 8);                
-    }    
+    }
 
     async loadDevice(name) {
         this.devices.push({
             name: name,
-            class: (await import(`./devices/${name}.js`)).default
+            class: (await importDevice(name))
         });
     }
 
     async loadMine(name) {
         this.mines.push({
             name: name,
-            class: (await import(`./mines/${name}.js`)).default
+            class: (await importMine(name))
         });
     }
 
     async loadBooster(name) {
         this.boosters.push({
             name: name,
-            class: (await import(`./boosters/${name}.js`)).default
+            class: (await importBooster(name))
         });
     }
 
@@ -118,16 +114,28 @@ export default class Game extends Phaser.Scene
     }
 
     async newGame (){
+        localStorage.clear();
+
         this.level = 1;
         this.cash = 0;
 
-        this.devicesInPlay = [];
+        this.devicesInPlay = new PropertyArray('game.devicesInPlay', true);
 
-        // this.addDevice('scannerModifierRange');
+        this.addDevice('ScannerModifierRange');
         // this.addDevice('scannerModifierPower');
 
         this.initStartingMines(12);
-        this.initBoard();
+        this.initBoard(12);
+    }
+
+    async continueGame (){
+        this.devicesInPlay = new PropertyArray('game.devicesInPlay');
+        this.renderDevicesInPlay();
+
+        this.minesInPlay = new PropertyArray('game.minesInPlay');
+        this.infoPanel.minesInfo();
+        
+        this.initBoard(0);
     }
 
     initStartingMines (mineCount) {
@@ -136,7 +144,7 @@ export default class Game extends Phaser.Scene
     }
 
     generateEvenMines (mineCount){
-        const mines = [];
+        const mines = new PropertyArray('game.minesInPlay', true);
         const sizeDistribution = [];
 
         this.mines.forEach(mine => {
@@ -147,19 +155,20 @@ export default class Game extends Phaser.Scene
             const s = Phaser.Math.Between(0, 2);
             const m = Phaser.Math.Between(0, this.mines.length - 1);
             if(sizeDistribution[m][s] >= 1) {
-                mines.push( { class: this.mines[m].class, size: s + 1, classIndex: m } );
+                mines.push({ class: this.mines[m].class, size: s + 1, classIndex: m });
                 sizeDistribution[m][s]--;
             }
         }
         mines.sort((a, b) => { return a.classIndex + b.size * 10 - b.classIndex - a.size * 10; });
+        mines.save();
 
         return mines;
     }
 
     addDevice(name) {
-        const device = this.devices.find(device => device.name === name);
+        const device = this.devices.find(device => device.class.name === name);
         if (device && this.devicesInPlay.length < 5) {
-            this.devicesInPlay.push(device);
+            this.devicesInPlay.push({ class: device.class });
             this.renderDevicesInPlay();
         }
     }
@@ -189,14 +198,14 @@ export default class Game extends Phaser.Scene
         });
     }
 
-    initBoard() {
+    initBoard(mines) {
         const boardGridWidth = 10;
         const boardGridHeight = 10;
         const boardY = Math.floor(this.scale.height * 0.1);
         const cellSize = (this.scale.height - boardY - this.scale.height * 0.01) / boardGridHeight;
         const boardX = Math.floor((this.scale.width / 2) - (boardGridWidth * cellSize) / 2);
 
-        this.board = new Board(this, boardX, boardY, cellSize, boardGridWidth, boardGridHeight, 12); 
+        this.board = new Board(this, boardX, boardY, cellSize, boardGridWidth, boardGridHeight, mines); 
     }
 
     preload() {

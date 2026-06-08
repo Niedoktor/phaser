@@ -16,10 +16,11 @@ export default class Menu extends Phaser.Scene {
         this.add.text(x, y, 'Mine Seeker', Style.bla14).setOrigin(0.5);
 
         const newButton = this.add.text(x, 2 * y, 'New Game', Style.bla7).setOrigin(0.5);
-        const contButton = this.add.text(x, 2 * y + newButton.height * 2, 'Continue', Style.gra7).setOrigin(0.5);
+        const contButton = this.add.text(x, 2 * y + newButton.height * 2, 'Continue', localStorage.getItem('game.level') ? Style.bla7 : Style.gra7).setOrigin(0.5);
         
         newButton.setInteractive();
         newButton.on('pointerdown', () => {
+            localStorage.clear();
             this.scene.start('Game');
         });
         newButton.on('pointerover', () => {
@@ -29,5 +30,17 @@ export default class Menu extends Phaser.Scene {
             newButton.setStyle(Style.bla7);
         });
 
+        if(localStorage.getItem('game.level')) {
+            contButton.setInteractive();
+            contButton.on('pointerdown', () => {
+                this.scene.start('Game');
+            });
+            contButton.on('pointerover', () => {
+                contButton.setStyle(Style.red7);
+            });
+            contButton.on('pointerout', () => {
+                contButton.setStyle(Style.bla7);
+            });
+        }
     }
 }

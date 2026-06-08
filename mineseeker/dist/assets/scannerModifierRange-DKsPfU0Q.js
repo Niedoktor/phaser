@@ -1,1 +1,0 @@
-import{D as c}from"./device-C8ZpZslZ.js";import"./index-KM57dzhR.js";class p extends c{constructor(e,r,a,n,s){super(e,r,a,n,s),this.priceTier=3,this.desc="Scanner Range +1."}play(e){e.scannerRange++}}export{p as default};

@@ -3,16 +3,12 @@ import { Cell } from './cell';
 import LooseForm from './looseForm';
 import WinForm from './winForm';
 import ShopForm from './shopForm';
+import PropertyArray from './propertyArray';
+import property from './property';
+import InfoPanel from './infoPanel';
 
 export default class Board
 {
-    #timeCounter;
-    #scansCounter;
-    #pointsCounter;
-    #minesCounter;
-    #scoreTarget;
-    #reward;
-
     constructor (game, sceneX, sceneY, cellSize, width, height, mines)
     {
         this.game = game;
@@ -29,12 +25,37 @@ export default class Board
         this.height = height;
         this.size = width * height;
 
-        this.minesQty = mines;
+        property(this, 'minesQty', 'board.minesQty');
+        property(this, 'playing', 'board.playing');
+        property(this, 'populated', 'board.populated');
+        property(this, 'scannerRange', 'board.scannerRange');
 
-        this.playing = false;        
-        this.populated = false;
+        property(this, 'timeCounter', 'board.timeCounter', (val) => {
+            InfoPanel.instance.timeCounterDisplay.setText(InfoPanel.instance.timeCounterDisplay.textTemplate.replace('{val}', val));
+        });
+        property(this, 'scansCounter', 'board.scansCounter', (val) => {
+            InfoPanel.instance.scansCounterDisplay.setText(InfoPanel.instance.scansCounterDisplay.textTemplate.replace('{val}', val));
+        });
+        property(this, 'pointsCounter', 'board.pointsCounter', (val) => {
+            InfoPanel.instance.pointsCounterDisplay.setText(InfoPanel.instance.pointsCounterDisplay.textTemplate.replace('{val}', val));
+        });
+        property(this, 'minesCounter', 'board.minesCounter', (val) => {
+            InfoPanel.instance.minesCounterDisplay.setText(InfoPanel.instance.minesCounterDisplay.textTemplate.replace('{val}', val));
+        });
+        property(this, 'scoreTarget', 'board.scoreTarget', (val) => {
+            InfoPanel.instance.scoreTargetDisplay.setText(InfoPanel.instance.scoreTargetDisplay.textTemplate.replace('{val}', val));
+        });
+        property(this, 'reward', 'board.reward', (val) => {
+            InfoPanel.instance.rewardDisplay.setText(InfoPanel.instance.rewardDisplay.textTemplate.replace('{val}', val));
+        });
 
-        this.scannerRange = 0;
+        if(mines > 0){
+            this.minesQty = mines;
+            this.playing = false;
+            this.populated = false;
+            this.scannerRange = 0;
+        }
+        
         this.pointsModifier = [0, 0, 0];
         this.pointsMultiplier = [1, 1, 1];
 
@@ -53,54 +74,6 @@ export default class Board
     async initBoard() {
         this.createCells();
         await this.newBoard();        
-    }
-
-    set timeCounter(val){
-        this.#timeCounter = val;
-        this.game.timeCounterDisplay.setText(`Time ${this.#timeCounter}`);
-    }
-    get timeCounter(){
-        return this.#timeCounter;
-    }
-    
-    set scansCounter(val){
-        this.#scansCounter = val;
-        this.game.scansCounterDisplay.setText(`Scans ${this.#scansCounter}`);
-    }
-    get scansCounter(){
-        return this.#scansCounter;
-    }
-
-    set pointsCounter(val){
-        this.#pointsCounter = val;
-        this.game.pointsCounterDisplay.setText(`Score ${this.#pointsCounter}`);
-    }
-    get pointsCounter(){
-        return this.#pointsCounter;
-    }
-
-    set minesCounter(val){
-        this.#minesCounter = val;
-        this.game.minesCounterDisplay.setText(`Mines ${this.#minesCounter}`);
-    }
-    get minesCounter(){
-        return this.#minesCounter;
-    }
-
-    set scoreTarget(val){
-        this.#scoreTarget = val;
-        this.game.scoreTargetDisplay.setText(`${this.#scoreTarget}`);
-    }
-    get scoreTarget(){
-        return this.#scoreTarget;
-    }
-
-    set reward(val){
-        this.#reward = val;
-        this.game.rewardDisplay.setText(`Reward ${this.#reward}$`);
-    }
-    get reward(){
-        return this.#reward;
     }
 
     async newBoard(){
@@ -261,8 +234,8 @@ export default class Board
 
     generateMines (startIndex)
     {
-        const mines = [];
-        const minesInPlay = this.game.minesInPlay.map(m => { return m; } );
+        const mines = new PropertyArray('board.mines', true);
+        const minesInPlay = [...this.game.minesInPlay];
 
         let minesPlaced = 0;
         while(minesPlaced < this.minesQty) {
@@ -271,7 +244,7 @@ export default class Board
 
             if (!cell.mineSize && cell.index !== startIndex)
             {
-                const p = Phaser.Math.Between(0, Object.keys(minesInPlay).length - 1);
+                const p = Phaser.Math.Between(0, minesInPlay.length - 1);
                 const m = minesInPlay[p];
 
                 cell.mineSize = m.size;

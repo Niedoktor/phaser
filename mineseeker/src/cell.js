@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import FragMine from './mines/fragMine';
 import Style from './styles';
+import property from './property';
 
 export class Cell
 {
@@ -18,11 +18,17 @@ export class Cell
         this.sceneX = x * this.size + this.board.sceneX;
         this.sceneY = y * this.size + this.board.sceneY;
 
+        property(this, 'open', `cell.${index}.open`);
+        //property(this, 'mine', `cell.${index}.mine`);
+        property(this, 'mineClass', `cell.${index}.mineClass`);
+        //property(this, 'mineLegend', `cell.${index}.mineLegend`);
+        property(this, 'mineSize', `cell.${index}.mineSize`);
+        property(this, 'mineParams', `cell.${index}.mineParams`);
+        property(this, 'value', `cell.${index}.value`);
+        property(this, 'exploded', `cell.${index}.exploded`);
+
         this.open = false;
-        this.mineSize = false;
-
         this.exploded = false;
-
         //  0 = empty, 1,2,3,4,5,6,7,8 = number of adjacent bombs
         this.value = 0;
 
@@ -168,15 +174,22 @@ export class Cell
     {
         if(this.open) return;
 
-        if(this.value > 0) {
-            const val = this.scene.add.text(this.x * this.size + (this.size / 2), this.y * this.size + (this.size / 2), this.value, Style.bla7).setOrigin(0.5);
-            this.board.container.add(val);
-        }
-
-        this.tile.setFillStyle(0xffffff);
-        this.tile.setStrokeStyle(4, 0x000000);
-
         this.open = true;
+        this.render();
+    }
+
+    render(){
+        if(this.open) {
+            if(this.value > 0) {
+                if(this.valueText) this.valueText.destroy();
+
+                this.valueText = this.scene.add.text(this.x * this.size + (this.size / 2), this.y * this.size + (this.size / 2), this.value, Style.bla7).setOrigin(0.5);
+                this.board.container.add(this.valueText);
+            }
+
+            this.tile.setFillStyle(0xffffff);
+            this.tile.setStrokeStyle(4, 0x000000);
+        }
     }
 
     destroy()

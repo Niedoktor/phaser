@@ -1,1 +1,0 @@
-import{D as o}from"./device-C8ZpZslZ.js";import"./index-KM57dzhR.js";class d extends o{constructor(e,i,t,r,s){super(e,i,t,r,s),this.priceTier=2,this.desc="Points Modifier +1 to all mines"}use(e){for(let i=0;i<e.currentPointsModifier.length;i++)e.currentPointsModifier[i]+=1}}export{d as default};

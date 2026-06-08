@@ -1,0 +1,1 @@
+import{D as l}from"./device-CEKhyvGT.js";import"./index-DoQ248z1.js";class p extends l{constructor(i,t,e,r,s){super(i,t,e,r,s),this.priceTier=2,this.desc="Points Multiplier +1 to all mines"}use(i){for(let t=0;t<i.currentPointsMultiplier.length;t++)i.currentPointsMultiplier[t]+=1}}export{p as default};

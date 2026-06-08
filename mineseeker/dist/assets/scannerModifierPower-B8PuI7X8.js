@@ -1,0 +1,1 @@
+import{D as c}from"./device-CEKhyvGT.js";import"./index-DoQ248z1.js";class p extends c{constructor(e,r,s,o,t){super(e,r,s,o,t),this.priceTier=1,this.desc="Scanner Power +1."}play(e){e.scansCounter++}}export{p as default};

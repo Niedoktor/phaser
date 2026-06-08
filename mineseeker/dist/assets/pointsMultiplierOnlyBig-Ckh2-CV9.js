@@ -1,0 +1,1 @@
+import{D as r}from"./device-CEKhyvGT.js";import"./index-DoQ248z1.js";class u extends r{constructor(i,e,t,s,l){super(i,e,t,s,l),this.priceTier=3,this.desc="Points Multiplier +2 if big mines left only"}use(i){i.minedCells.filter(e=>e.bomb<3&&!e.exploded).length===0&&(i.currentPointsMultiplier[2]+=2)}}export{u as default};
