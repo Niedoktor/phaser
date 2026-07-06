@@ -50,6 +50,11 @@ export default class Game extends Phaser.Scene
             this.infoPanel.cashDisplay.setText(this.infoPanel.cashDisplay.textTemplate.replace('{val}', val));
         });
 
+        property(this, 'shopOpened', 'game.shopOpened');
+        property(this, 'minesQty', 'game.minesQty');
+
+        this.devicesInstances = [];
+
         if(this.level !== undefined) {
             await this.continueGame();
         }else{
@@ -59,8 +64,9 @@ export default class Game extends Phaser.Scene
         //this.openShop();
     }
 
-    openShop() {
-        this.shop = new ShopForm(this, this.scale.width / 4, this.scale.height / 8);                
+    openShop(reset = false) {
+        this.shop = new ShopForm(this, this.scale.width / 4, this.scale.height / 8, reset);
+        this.shopOpened = true;
     }
 
     async loadDevice(name) {
@@ -118,14 +124,15 @@ export default class Game extends Phaser.Scene
 
         this.level = 1;
         this.cash = 0;
+        this.minesQty = 12;
 
         this.devicesInPlay = new PropertyArray('game.devicesInPlay', true);
 
         this.addDevice('ScannerModifierRange');
         // this.addDevice('scannerModifierPower');
 
-        this.initStartingMines(12);
-        this.initBoard(12);
+        this.initStartingMines(this.minesQty);
+        this.initBoard(this.minesQty);
     }
 
     async continueGame (){
@@ -136,6 +143,10 @@ export default class Game extends Phaser.Scene
         this.infoPanel.minesInfo();
         
         this.initBoard(0);
+
+        if(!this.board.playing){
+            this.openShop(!this.shopOpened);
+        }
     }
 
     initStartingMines (mineCount) {
@@ -187,14 +198,16 @@ export default class Game extends Phaser.Scene
         if(this.devicesContainer){
             this.devicesContainer.destroy();
             this.devicesContainer = null;
+            this.devicesInstances = [];
         }
 
         this.devicesContainer = this.add.container(x, space);
 
         this.devicesInPlay.forEach((device, index) => {
-            device.inst = new device.class(this, 0, index * (h + space), w, h);
-            const deviceContainer = device.inst.render();
+            const inst = new device.class(this, 0, index * (h + space), w, h);
+            const deviceContainer = inst.render();
             this.devicesContainer.add(deviceContainer);
+            this.devicesInstances.push(inst);
         });
     }
 

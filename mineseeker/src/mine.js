@@ -20,6 +20,12 @@ export default class Mine
     init()
     {
         this.render();
+
+        if(this.cell.exploded) {
+            this.changeLabel();
+            return;
+        }
+
         this.forcePointContainer = this.scene.add.container(this.cell.sceneX + this.cell.size * this.forcePoint.x, this.cell.sceneY + this.cell.size * this.forcePoint.y);
         this.forcePointContainer.add(this.scene.add.circle(0, 0, 2, 0xff0000));
         for(let i = 1; i < this.size + 1; i++)
@@ -110,15 +116,7 @@ export default class Mine
             }
         }
 
-        this.label = this.scene.add.text(this.x, this.y, 'X', Style.red12).setOrigin(0.5).setScale(2);
-        this.scoreLabel = this.scene.add.text(this.x, this.y, `${this.size + this.pointsModifier}  ${this.pointsMultiplier}`, Style.dre4b).setScale(3).setOrigin(0.5);
-
-        this.scene.tweens.add({
-            targets: [ this.label, this.scoreLabel ],
-            scale: 1,
-            duration: 250,
-            ease: 'Sine.In'
-        });
+        this.changeLabel();
 
         // setTimeout(() => {
         //     this.label = this.scene.add.text(this.x, this.y, 'X', Style.red14).setOrigin(0.5).setAlpha(0);
@@ -130,6 +128,18 @@ export default class Mine
         //         ease: 'Linear'
         //     });            
         // }, 1000);
+    }
+
+    changeLabel() {
+        this.label = this.scene.add.text(this.x, this.y, 'X', Style.red12).setOrigin(0.5).setScale(2);
+        this.scoreLabel = this.scene.add.text(this.x, this.y, `${this.size + this.cell.pointsModifier}  ${this.cell.pointsMultiplier}`, Style.dre4b).setScale(3).setOrigin(0.5);
+
+        this.scene.tweens.add({
+            targets: [this.label, this.scoreLabel],
+            scale: 1,
+            duration: 250,
+            ease: 'Sine.In'
+        });
     }
 
     destroy()

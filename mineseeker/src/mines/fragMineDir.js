@@ -3,12 +3,12 @@ import Mine from '../mine.js';
 export default class FragMineDir extends Mine {
     constructor (cell, x = 0, y = 0, fragSize = 5, size = 1)
     {
-        x += (cell.size / 2);
-        y += (cell.size / 2);
+        x += cell.size / 2;
+        y += cell.size / 2;
 
         super(cell, x, y, size, fragSize, size * 0.32);
 
-        this.radius = cell.mineParams.radius * cell.size;
+        this.radius = Math.round(cell.mineParams.radius * cell.size);
         this.angle = cell.mineParams.angle;
 
         switch(this.angle) {
@@ -19,7 +19,7 @@ export default class FragMineDir extends Mine {
                 this.forcePoint = { x: 0.5 + this.radius * 0.005, y: 0.5 };
                 break;
             case 180:
-                this.forcePoint = { x: 0.5, y: 0.5 + this.radius * 0.005 };                
+                this.forcePoint = { x: 0.5, y: 0.5 + this.radius * 0.005 };
                 break;
             case 270:
                 this.forcePoint = { x: 0.5 - this.radius * 0.005, y: 0.5 };
@@ -31,6 +31,8 @@ export default class FragMineDir extends Mine {
 
     render()
     {
+        if(this.cell.exploded) return;
+       
         const arc = this.scene.add.arc(this.x, this.y, this.radius, this.angle, this.angle + 180, false, 0x000000);
         const verts = arc.pathData.map((point, index) => {
             if(index % 2 === 0) {

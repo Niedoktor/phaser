@@ -19,18 +19,25 @@ export class Cell
         this.sceneY = y * this.size + this.board.sceneY;
 
         property(this, 'open', `cell.${index}.open`);
-        //property(this, 'mine', `cell.${index}.mine`);
         property(this, 'mineClass', `cell.${index}.mineClass`);
-        //property(this, 'mineLegend', `cell.${index}.mineLegend`);
         property(this, 'mineSize', `cell.${index}.mineSize`);
         property(this, 'mineParams', `cell.${index}.mineParams`);
         property(this, 'value', `cell.${index}.value`);
         property(this, 'exploded', `cell.${index}.exploded`);
+        property(this, 'pointsModifier', `cell.${index}.pointsModifier`);
+        property(this, 'pointsMultiplier', `cell.${index}.pointsMultiplier`);
 
-        this.open = false;
-        this.exploded = false;
-        //  0 = empty, 1,2,3,4,5,6,7,8 = number of adjacent bombs
-        this.value = 0;
+        if(!board.populated){
+            this.open = false;
+            this.exploded = false;
+            //  0 = empty, 1,2,3,4,5,6,7,8 = number of adjacent bombs
+            this.value = 0;
+            this.mineClass = undefined;
+            this.mineSize = 0;
+            this.mineParams = undefined;
+            this.pointsModifier = undefined;
+            this.pointsMultiplier = undefined;
+        }
 
         this.tile = this.scene.add.rectangle(this.x * this.size, this.y * this.size, this.size, this.size, 0x000000).setOrigin(0).setStrokeStyle(4, 0xffffff);
         this.board.container.add(this.tile);
@@ -89,20 +96,25 @@ export class Cell
                 if(cell){
                     if(!cell.open){
                         cell.show();
-
-                        if(cell.mineSize){
-                            const x = this.board.sceneX + cell.x * cell.size;
-                            const y = this.board.sceneY + cell.y * cell.size;
-                            const f = cell.size / 20;
-
-                            cell.mine = new cell.mineClass(cell, x, y, f, cell.mineSize);
-
-                            cell.mine.mine.setOnCollide(() => {
-                                if(cell.mine.mine) cell.cellBlowUp(cell.mine);
-                            })
-                        }
+                        cell.createMine();
                     }
                 }
+            }
+        }
+    }
+
+    createMine(){
+        if(this.mineSize){
+            const x = this.board.sceneX + this.x * this.size;
+            const y = this.board.sceneY + this.y * this.size;
+            const f = this.size / 20;
+
+            this.mine = new this.mineClass(this, x, y, f, this.mineSize);
+
+            if(this.mine.mine) {
+                this.mine.mine.setOnCollide(() => {
+                    if(this.mine.mine) this.cellBlowUp(this.mine);
+                })
             }
         }
     }
@@ -111,10 +123,10 @@ export class Cell
     {
         this.exploded = true;
 
-        mine.pointsModifier = this.board.currentPointsModifier[mine.size - 1];
-        mine.pointsMultiplier = this.board.currentPointsMultiplier[mine.size - 1] * this.board.sequence;
+        this.pointsModifier = this.board.currentPointsModifier[mine.size - 1];
+        this.pointsMultiplier = this.board.currentPointsMultiplier[mine.size - 1] * this.board.sequence;
 
-        this.board.pointsCounter += (mine.size + mine.pointsModifier) * mine.pointsMultiplier;
+        this.board.pointsCounter += (mine.size + this.pointsModifier) * this.pointsMultiplier;
 
         this.board.sequence++;
         this.board.minesCounter--;
@@ -126,15 +138,19 @@ export class Cell
             }
         });
 
-        if(this.mineLegend) {
-            this.mineLegendX = this.scene.add.text(this.mineLegend.x, this.mineLegend.y, 'X', Style.red12).setOrigin(0.5, 0.5);
-            this.mineLegend.setAlpha(0.5);
-            this.board.legendContainer.add(this.mineLegendX);
-        }
+        this.changeMineLegendLabel();
 
         if(this.mine.rangeArea) {
             this.mine.rangeArea.destroy();
         }        
+    }
+
+    changeMineLegendLabel() {
+        if (this.mineLegend) {
+            this.mineLegendX = this.scene.add.text(this.mineLegend.x, this.mineLegend.y, 'X', Style.red12).setOrigin(0.5, 0.5);
+            this.mineLegend.setAlpha(0.5);
+            this.board.legendContainer.add(this.mineLegendX);
+        }
     }
 
     onClick ()
@@ -149,9 +165,9 @@ export class Cell
             this.board.sequence = 1;
             this.board.currentPointsModifier = Phaser.Utils.Objects.DeepCopy(this.board.pointsModifier);
             this.board.currentPointsMultiplier = Phaser.Utils.Objects.DeepCopy(this.board.pointsMultiplier);
-            this.board.game.devicesInPlay.forEach(device => {
-                if(device.inst.use){
-                    device.inst.use(this.board);
+            this.board.game.devicesInstances.forEach(device => {
+                if(device.use){
+                    device.use(this.board);
                 }
             });
             this.cellBlowUp(this.mine);

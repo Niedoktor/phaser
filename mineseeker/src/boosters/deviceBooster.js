@@ -40,7 +40,7 @@ export default class DeviceBooster extends Booster {
 
             device.rect.setInteractive();
             device.rect.on('pointerdown', () => {
-                this.game.addDevice(devices[i].name);
+                this.game.addDevice(devices[i].class.name);
                 deviceContainer.destroy();
                 this.close();             
             });

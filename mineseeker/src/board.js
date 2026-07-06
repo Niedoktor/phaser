@@ -73,7 +73,21 @@ export default class Board
 
     async initBoard() {
         this.createCells();
-        await this.newBoard();        
+        if(this.populated) {
+            this.minedCells = new PropertyArray('board.mines');
+            this.minedCells.forEach(mine => {
+                const cell = this.getCell(mine.cellIndex);
+                mine.cell = cell;
+                if(cell.open) cell.createMine();
+            });
+            this.minedCells.sort((a, b) => { return b.cell.mineSize - a.cell.mineSize; });
+            this.data.forEach(column => {
+                column.forEach(cell => {
+                    cell.render();
+                });
+            });
+            this.drawLegend();
+        }else await this.newBoard();
     }
 
     async newBoard(){
@@ -90,8 +104,8 @@ export default class Board
     }
 
     playDevices() {
-        this.game.devicesInPlay.forEach(device => {
-            device.inst.play(this);
+        this.game.devicesInstances.forEach(device => {
+            device.play(this);
         });
     }
 
@@ -112,11 +126,7 @@ export default class Board
         }
     }
 
-    async generate (startIndex)
-    {
-        this.minedCells = this.generateMines(startIndex);
-        this.minedCells.sort((a, b) => { return b.mineSize - a.mineSize; });
-
+    drawLegend(){
         const w = this.sceneW / (this.minesQty + 1);
 
         let i = 0;
@@ -125,11 +135,22 @@ export default class Board
 
             this.legendContainer.add(this.scene.add.rectangle(x, 0, w, w, 0xdddddd).setStrokeStyle(4, 0x000000).setOrigin(0.5, 0));
 
-            cell.mineLegend = cell.mineClass.legend(this.scene, w, x, w / 2, cell.mineSize, cell.mineParams);
-            this.legendContainer.add(cell.mineLegend);
+            cell.cell.mineLegend = cell.cell.mineClass.legend(this.scene, w, x, w / 2, cell.cell.mineSize, cell.cell.mineParams);
+            this.legendContainer.add(cell.cell.mineLegend);
+            if(cell.cell.exploded) {
+                cell.cell.changeMineLegendLabel();
+            }
+        });
+    }
 
+    async generate (startIndex)
+    {
+        this.minedCells = this.generateMines(startIndex);
+        this.minedCells.sort((a, b) => { return b.cell.mineSize - a.cell.mineSize; });
+
+        this.minedCells.forEach(cell => {
             //  Update the 8 cells around this bomb cell
-            const adjacent = this.getAdjacentCells(cell);
+            const adjacent = this.getAdjacentCells(cell.cell);
 
             adjacent.forEach(adjacentCell => {
 
@@ -142,6 +163,8 @@ export default class Board
 
         this.playing = true;
         this.populated = true;
+
+        this.drawLegend();
 
         // for (let x = 0; x < this.width; x++)
         // {
@@ -156,7 +179,7 @@ export default class Board
     {
         const pos = Phaser.Math.ToXY(index, this.width, this.height);
 
-        return this.data[pos.x][pos.y];
+        return this.data[pos.y][pos.x];
     }
 
     getCellXY (x, y)
@@ -252,11 +275,16 @@ export default class Board
                 cell.mineParams = cell.mineClass.setMineParams(m.size);
 
                 minesPlaced++;
-                mines.push(cell);
+                mines.push({ cellIndex: cell.index });
 
                 minesInPlay.splice(p, 1);
             }
         };
+
+        mines.forEach(mine => {
+            const cell = this.getCell(mine.cellIndex);
+            mine.cell = cell;
+        });
 
         return mines;
     }

@@ -36,7 +36,7 @@ export default class WinForm
         this.shopButton.on('pointerdown', () => {
             this.board.game.level++;
             this.board.game.cash += this.board.reward + this.board.minesCounter;
-            this.board.game.openShop();
+            this.board.game.openShop(true);
 
             form.destroy();
             delete this;

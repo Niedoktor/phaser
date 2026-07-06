@@ -11,27 +11,41 @@ const property = (obj, name, id, setCallback) => {
     Object.defineProperty(obj, name, {
         get: function () {
             let val = localStorage.getItem(id);
-            valType = val ? val.split(':')[0] : 'undefined';
-            val = val ? val.split(':')[1] : undefined;
-            if (valType === 'number') {
-                val = Number(val);
-            }
-            if(valType === 'boolean') {
-                val = val === 'true';
-            }
-            if(valType === 'undefined') {
-                val = undefined;
-            }
-            if(valType === 'module') {
-                val = modules[val];
-            }
+            if(val){
+                const semicolonIndex = val.indexOf(':');
+                valType = val.substring(0, semicolonIndex);
+                val = val.substring(semicolonIndex + 1);
+                if (valType === 'number') {
+                    val = Number(val);
+                }
+                if(valType === 'boolean') {
+                    val = val === 'true';
+                }
+                if(valType === 'undefined') {
+                    val = undefined;
+                }
+                if(valType === 'module') {
+                    val = modules[val];
+                }
+                if(valType === 'object') {
+                    try {
+                        val = JSON.parse(val);
+                    } catch (e) {
+                        console.error(`Error parsing JSON for property ${name} with id ${id}:`, e);
+                        val = null;
+                    }
+                }
+            }else val = undefined;
             return val;
         },
         set: function (val) {
             valType = typeof val;
-            if(valType === 'function') {
+            if(valType === 'function' && val.hasOwnProperty('name')) {
                 valType = 'module';
                 val = val.name;
+            }
+            if(valType === 'object') {
+                val = JSON.stringify(val);
             }
             localStorage.setItem(id, `${valType}:${val}`);
             if (setCallback) {

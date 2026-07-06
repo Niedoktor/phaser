@@ -22,7 +22,9 @@ export default class Device {
 
         this.container.add(this.rect = this.scene.add.rectangle(0, 0, this.w, this.h, 0xdddddd).setOrigin(0).setStrokeStyle(4, 0x000000));
 
-        const fontStyle = { ...Style.bla4,
+        const fontStyle = {
+            fontFamily: `LEDCalculator`,
+            fill: '#000',
             fontSize: Math.floor(this.h * 0.14),
             lineSpacing: Math.floor(this.h * 0.04),
             wordWrap: { width: this.w * 0.9 },

@@ -15,6 +15,8 @@ export default class FragMine extends Mine {
 
     render()
     {
+        if(this.cell.exploded) return;
+        
         const circle = this.scene.add.circle(this.x, this.y, this.radius, 0x000000);
         const verts = circle.pathData.join(' ');
         this.mine = this.scene.add.polygon(this.x, this.y, verts, 0x000000);

@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import Style from './styles';
+import PropertyArray from './propertyArray';
 
 export default class ShopForm
 {
-    constructor (game, x, y)
+    constructor (game, x, y, reset = false)
     {
         this.game = game;
         this.scene = game;
@@ -26,19 +27,21 @@ export default class ShopForm
         
         this.devicesContainer.add(this.scene.add.rectangle(0, 0, w - lineSpace, lineSpace * 2, 0xffffff).setOrigin(0).setStrokeStyle(4, 0x000000));
 
-        const devices = [];
-        while(devices.length < this.game.shopDevicesCount && devices.length + this.game.devicesInPlay.length < this.game.devices.length){
-            const device = this.game.devices[Math.floor(Math.random() * this.game.devices.length)];
-            if(!devices.includes(device) && !this.game.devicesInPlay.includes(device)){
-                devices.push(device);
+        this.devices = new PropertyArray('shop.devices', reset);
+        if(reset){
+            while(this.devices.length < this.game.shopDevicesCount && this.devices.length + this.game.devicesInPlay.length < this.game.devices.length){
+                const device = this.game.devices[Math.floor(Math.random() * this.game.devices.length)];
+                if(!this.devices.some(o => o.class === device.class) && !this.game.devicesInPlay.some(o => o.class === device.class)){
+                    this.devices.push({ class: device.class });
+                }
             }
         }
 
-        let dx = (w - lineSpace - (lineSpace * 3.6 * devices.length + lineSpace * 0.1 * (devices.length - 1))) / 2;
+        let dx = (w - lineSpace - (lineSpace * 3.6 * this.devices.length + lineSpace * 0.1 * (this.devices.length - 1))) / 2;
 
         const basePrice = 1;
-        for(let i = 0; i < devices.length; i++) {
-            const device = new devices[i].class(this.game, dx + i * (lineSpace * 3.7), lineSpace * 0.1, lineSpace * 3.6, lineSpace * 1.8);
+        for(let i = 0; i < this.devices.length; i++) {
+            const device = new this.devices[i].class(this.game, dx + i * (lineSpace * 3.7), lineSpace * 0.1, lineSpace * 3.6, lineSpace * 1.8);
             const deviceContainer = device.render(basePrice);
             this.devicesContainer.add(deviceContainer);
             
@@ -46,8 +49,9 @@ export default class ShopForm
             device.rect.on('pointerdown', () => {
                 if(this.game.devicesInPlay.length < 5 && this.game.cash >= device.priceTier * basePrice){
                     this.game.cash -= device.priceTier * basePrice;
-                    this.game.addDevice(devices[i].name);
+                    this.game.addDevice(this.devices[i].class.name);
                     deviceContainer.destroy();
+                    this.devices.splice(i, 1);
                 }
             });
         }
@@ -60,16 +64,18 @@ export default class ShopForm
 
         this.boostersContainer.add(this.scene.add.rectangle(0, 0, lineSpace * 7.5, lineSpace * 2, 0xffffff).setOrigin(0).setStrokeStyle(4, 0x000000));
 
-        const boosters = [];
-        while(boosters.length < 2){
-            const booster = this.game.boosters[Math.floor(Math.random() * this.game.boosters.length)];
-            if(!boosters.includes(booster)){
-                boosters.push(booster);
+        this.boosters = new PropertyArray('shop.boosters', reset);
+        if(reset){
+            while(this.boosters.length < 2){
+                const booster = this.game.boosters[Math.floor(Math.random() * this.game.boosters.length)];
+                if(!this.boosters.some(o => o.class === booster.class)){
+                    this.boosters.push({ class: booster.class });
+                }
             }
         }
 
-        for(let i = 0; i < boosters.length; i++) {
-            const booster = new boosters[i].class(this.game, lineSpace * 0.1 + i * (lineSpace * 3.7), lineSpace * 0.1, lineSpace * 3.6, lineSpace * 1.8);
+        for(let i = 0; i < this.boosters.length; i++) {
+            const booster = new this.boosters[i].class(this.game, lineSpace * 0.1 + i * (lineSpace * 3.7), lineSpace * 0.1, lineSpace * 3.6, lineSpace * 1.8);
             const boosterContainer = booster.render(basePrice);
             this.boostersContainer.add(boosterContainer);
             
@@ -81,6 +87,7 @@ export default class ShopForm
                     this.formBlur = this.form.postFX.addBlur(2);
                     booster.open();
                     boosterContainer.destroy();
+                    this.boosters.splice(i, 1);
                 }
             });
         }
@@ -90,8 +97,9 @@ export default class ShopForm
         this.nextLevelButton.setInteractive();
         this.nextLevelButton.on('pointerdown', () => {
             this.game.board.destroy();
-            this.game.initBoard();
+            this.game.initBoard(this.game.minesQty);
             this.form.destroy();
+            this.game.shopOpened = false;
             delete this;
         });
         this.nextLevelButton.on('pointerover', () => {

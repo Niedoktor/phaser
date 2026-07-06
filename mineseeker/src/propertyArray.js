@@ -19,14 +19,22 @@ export default class PropertyArray extends Array{
 
         const maItem = {};
         for (const key in item) {
-            property(maItem, key, `${this.name}.${key}.${Phaser.Utils.String.UUID()}`);
-            maItem[key] = item[key];
+            if(!(item[key] instanceof Object) || item[key].hasOwnProperty('name')) {
+                property(maItem, key, `${this.name}.${key}.${Phaser.Utils.String.UUID()}`);
+                maItem[key] = item[key];
+            }
         }
 
         const result = super.push(maItem);
         this.save();
 
         return result;
+    }
+
+    splice (start, deleteCount, ...items) {
+        const removed = super.splice(start, deleteCount, ...items);
+        this.save();
+        return removed;
     }
 
     save () {
