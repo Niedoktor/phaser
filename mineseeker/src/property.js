@@ -21,7 +21,7 @@ const property = (obj, name, id, setCallback) => {
                 if(valType === 'boolean') {
                     val = val === 'true';
                 }
-                if(valType === 'undefined') {
+                if(val === 'undefined') {
                     val = undefined;
                 }
                 if(valType === 'module') {

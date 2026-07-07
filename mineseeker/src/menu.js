@@ -20,7 +20,7 @@ export default class Menu extends Phaser.Scene {
         
         newButton.setInteractive();
         newButton.on('pointerdown', () => {
-            localStorage.clear();
+            localStorage.setItem('game.level', undefined);
             this.scene.start('Game');
         });
         newButton.on('pointerover', () => {

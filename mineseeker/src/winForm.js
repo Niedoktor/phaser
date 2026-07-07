@@ -66,7 +66,7 @@ export default class WinForm
         this.shopButton.setInteractive();
         this.shopButton.on('pointerdown', () => {
             this.board.game.openShop(true);
-            if(deviceContainer) deviceContainer.destroy();
+            if(this.deviceContainer) deviceContainer.destroy();
             form.destroy();
             delete this;
         });

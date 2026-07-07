@@ -31,6 +31,8 @@ export default class Game extends Phaser.Scene
         this.shopDevicesCount = 2;
 
         this.initGame();
+
+        console.log('Game created');
     }
 
     async initGame() {
