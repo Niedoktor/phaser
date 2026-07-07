@@ -12,4 +12,8 @@ export default class PointsModifierOnlySmall extends Device {
             board.currentPointsModifier[0] += 4;
         }
     }
+
+    static tryUnlock(board) {
+        return false;
+    }
 }

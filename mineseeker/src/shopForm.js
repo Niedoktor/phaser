@@ -31,7 +31,7 @@ export default class ShopForm
         if(reset){
             while(this.devices.length < this.game.shopDevicesCount && this.devices.length + this.game.devicesInPlay.length < this.game.devices.length){
                 const device = this.game.devices[Math.floor(Math.random() * this.game.devices.length)];
-                if(!this.devices.some(o => o.class === device.class) && !this.game.devicesInPlay.some(o => o.class === device.class)){
+                if(device.enabled && !this.devices.some(o => o.class === device.class) && !this.game.devicesInPlay.some(o => o.class === device.class)){
                     this.devices.push({ class: device.class });
                 }
             }

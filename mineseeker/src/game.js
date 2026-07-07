@@ -19,6 +19,8 @@ export default class Game extends Phaser.Scene
 
         this.firstLevelScore = 10;
         this.firstLevelReward = 3;
+        this.scansCount = 5;
+        this.initialMinePrice = 1;
 
         this.devices = [];
         this.mines = [];
@@ -52,6 +54,7 @@ export default class Game extends Phaser.Scene
 
         property(this, 'shopOpened', 'game.shopOpened');
         property(this, 'minesQty', 'game.minesQty');
+        property(this, 'minePrice', 'game.minePrice');
 
         this.devicesInstances = [];
 
@@ -70,10 +73,12 @@ export default class Game extends Phaser.Scene
     }
 
     async loadDevice(name) {
-        this.devices.push({
+        const device = {
             name: name,
-            class: (await importDevice(name))
-        });
+            class: (await importDevice(name)),
+        };
+        property(device, 'enabled', `device.${name}.enabled`);
+        this.devices.push(device);
     }
 
     async loadMine(name) {
@@ -112,6 +117,8 @@ export default class Game extends Phaser.Scene
         await this.loadDevice('pointsMultiplierDiscSmall');
         await this.loadDevice('pointsMultiplierDiscMedium');
         await this.loadDevice('pointsMultiplierDiscBig');
+        await this.loadDevice('pointsModifierByScansLeft');
+        await this.loadDevice('pointsModifierByCash');
     }
 
     async loadMines () {
@@ -120,11 +127,22 @@ export default class Game extends Phaser.Scene
     }
 
     async newGame (){
+        this.devices.forEach(device => {
+            if(device.enabled) {
+                device.class.enabled = true;
+            }
+        });
+
         localStorage.clear();
 
         this.level = 1;
         this.cash = 0;
         this.minesQty = 12;
+        this.minePrice = this.initialMinePrice;
+
+        this.devices.forEach(device => {
+            if(device.class.enabled) device.enabled = true;
+        });
 
         this.devicesInPlay = new PropertyArray('game.devicesInPlay', true);
 

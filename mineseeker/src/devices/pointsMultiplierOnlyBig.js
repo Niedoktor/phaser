@@ -12,4 +12,8 @@ export default class PointsMultiplierOnlyBig extends Device {
             board.currentPointsMultiplier[2] += 2;
         }
     }
+
+    static tryUnlock(board) {
+        return false;
+    }
 }

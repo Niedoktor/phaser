@@ -22,7 +22,7 @@ export default class DeviceBooster extends Booster {
         const devices = [];
         while(devices.length < 3){
             const device = this.game.devices[Math.floor(Math.random() * this.game.devices.length)];
-            if(!devices.includes(device)){
+            if(!devices.includes(device) && device.enabled){
                 devices.push(device);
             }
         }

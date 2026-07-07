@@ -92,9 +92,7 @@ export default class Board
 
     async newBoard(){
         this.timeCounter = 99;
-        this.scansCounter = 5;
-        this.pointsCounter = 0;
-        this.scansCounter = 5;
+        this.scansCounter = this.game.scansCount;
         this.pointsCounter = 0;
         this.minesCounter = this.minesQty;
         this.scoreTarget = this.game.level == 1 ? this.game.firstLevelScore : 2.5 * (this.game.level - 1) * this.game.firstLevelScore;
