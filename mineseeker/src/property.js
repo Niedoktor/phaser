@@ -1,6 +1,10 @@
 import { modules } from './modules';
 
 const property = (obj, name, id, setCallback) => {
+    if(obj.hasOwnProperty(name)) {
+        return;
+    }
+
     let valType;
 
     if(!obj.properties) {

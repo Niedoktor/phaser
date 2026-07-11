@@ -95,7 +95,7 @@ export default class Board
         this.scansCounter = this.game.scansCount;
         this.pointsCounter = 0;
         this.minesCounter = this.minesQty;
-        this.scoreTarget = this.game.level == 1 ? this.game.firstLevelScore : 2.5 * (this.game.level - 1) * this.game.firstLevelScore;
+        this.scoreTarget = this.game.level * this.game.level * this.game.firstLevelScore;
         this.reward = Math.floor(this.game.firstLevelReward + this.game.level / 3);
 
         this.playDevices();

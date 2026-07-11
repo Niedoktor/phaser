@@ -24,8 +24,10 @@ export default class LooseForm
 
         this.newButton.setInteractive();
         this.newButton.on('pointerdown', () => {
+            localStorage.setItem('game.level', undefined);
             this.scene.scene.start('Game');
             form.destroy();
+            delete this;
         });
         this.newButton.on('pointerover', () => {
             this.newButton.setStyle(Style.red7);
